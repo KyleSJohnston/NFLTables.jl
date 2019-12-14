@@ -1,0 +1,4 @@
+name = "NFLTables"
+uuid = "d9d91892-6368-4404-842f-e6b99dc208e9"
+authors = ["Kyle S. Johnston <KyleSJohnston@users.noreply.github.com>"]
+version = "0.1.0"
