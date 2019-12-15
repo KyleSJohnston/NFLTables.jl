@@ -1,14 +1,25 @@
 # NFLTables.jl
-Functions to access NFL data
+Functions to access NFL data. Please create a GitHub issue to request a new
+dataset or report a bug.
 
 ## NFLScrapRData
-Activating environment at `~/vcs/NFLTables.jl/Project.toml`
+
+The NFLScrapRData module makes it convenient to read nflscrapR-data as a
+dataframe.
 
 ```julia
 julia> using NFLTables.NFLScrapRData
 
 julia> using DataFrames
 
+```
+
+Game information can be obtained using `game`. By default, data is pulled from
+GitHub, but a local clone can also be specified with the `root` keyword
+argument. In the examples below, the local clone is specified with an
+environment variable.
+
+```julia
 julia> gamesdf = game(2018, "reg", root=ENV["NFLSCRAPR_DATA"]);
 
 julia> size(gamesdf)
@@ -38,6 +49,12 @@ julia> first(gamesdf, 5)
 │ 4   │ reg    │ 2018090906 │ NO        │ TB        │ 1     │ 2018   │ POST          │ http://www.nfl.com/liveupdate/game-center/2018090906/2018090906_gtd.json │ 40         │ 48         │
 │ 5   │ reg    │ 2018090905 │ NE        │ HOU       │ 1     │ 2018   │ POST          │ http://www.nfl.com/liveupdate/game-center/2018090905/2018090905_gtd.json │ 27         │ 20         │
 
+```
+
+Play-by-play information is also available; use the `playbyplay` function to
+load it into a dataframe.
+
+```julia
 julia> pbpdf = playbyplay(2018, "reg", root=ENV["NFLSCRAPR_DATA"]);
 
 julia> size(pbpdf)
