@@ -1,4 +1,6 @@
 # NFLTables.jl
+[![Build Status](https://travis-ci.com/KyleSJohnston/NFLTables.jl.svg?branch=master)](https://travis-ci.com/KyleSJohnston/NFLTables.jl)
+
 Functions to access NFL data. Please create a GitHub issue to request a new
 dataset or report a bug.
 
