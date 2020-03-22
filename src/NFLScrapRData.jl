@@ -8,18 +8,14 @@ module NFLScrapRData
 using  CSV
 using  DataFrames
 using  Pkg.Artifacts
+using  ..Enumerations
 
-export game, playbyplay, pre, reg, post, seasons, seasonparts, validseason, validpart
+export game, playbyplay, seasons, seasonparts, validseason, validpart
 
 """
 seasons with nflscrapR data
 """
 const SEASONS = tuple(2009:2019...)
-
-"""
-parts of a single season
-"""
-@enum SeasonPart pre reg post
 
 """
 returns true if `season` is valid
@@ -78,7 +74,9 @@ const artifact_toml = joinpath(@__DIR__, "..", "Artifacts.toml")
 Aliases for the parts of the season
 """
 const partaliases = Dict{SeasonPart,AbstractString}(
-    pre => "pre", reg => "regular", post => "post"
+    Enumerations.pre => "pre",
+    Enumerations.reg => "regular",
+    Enumerations.post => "post"
 )
 
 """
