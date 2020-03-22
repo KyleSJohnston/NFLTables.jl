@@ -121,4 +121,7 @@ end
     # SB_LVIII   = 2023
 end
 
+Season(x::SuperBowl) = Season(Int(x))
+SuperBowl(x::Season) = SuperBowl(Int(x))
+
 end  # module Enumerations
