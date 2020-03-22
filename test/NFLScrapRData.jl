@@ -20,7 +20,9 @@ end
         path = season_artifact(season, redownload=false)
         @test isa(path, String)
     end
-    @test_throws ErrorException season_artifact(3001)
+
+    @test_throws ErrorException season_artifact(1970)  # valid season, no data
+    @test_throws ArgumentError season_artifact(3001)  # invalid season
 end
 
 @testset "nflscrapR-data df tests" begin
