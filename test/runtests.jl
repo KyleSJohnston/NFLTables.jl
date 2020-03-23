@@ -2,7 +2,7 @@ module NFLTablesTest
 
 using NFLTables
 
-tests = ["enumerations", "NFLScrapRData"]
+tests = ["enumerations", "schedules", "NFLScrapRData"]
 
 for test in tests
     include("$(test).jl")
