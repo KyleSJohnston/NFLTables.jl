@@ -1,11 +1,18 @@
 module NFLTablesTest
 
-using NFLTables
+using  Logging
+using  NFLTables
 
-tests = ["enumerations", "schedules", "NFLScrapRData"]
+# Configure logging
+logger = Logging.ConsoleLogger(stderr, Logging.Debug)
 
-for test in tests
-    include("$(test).jl")
+with_logger(logger) do
+
+    tests = ["enumerations", "schedules", "NFLScrapRData"]
+
+    for test in tests
+        include("$(test).jl")
+    end
+
 end
-
 end  # module NFLTablesTest

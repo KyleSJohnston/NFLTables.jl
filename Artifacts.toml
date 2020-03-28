@@ -30,3 +30,6 @@ git-tree-sha1 = "0708f93995b5c9b7eedacd23ff689d175c400ec3"
 
 [nflscrapR_2019]
 git-tree-sha1 = "01303de80db4c51809994e7ce4aa95201a15a0d6"
+
+[schedule_2018]
+git-tree-sha1 = "c6aab12122075e82dafce9fa31f7f2b858efa2ae"

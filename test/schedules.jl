@@ -2,13 +2,18 @@ module TestSchedules
 
 using  Test
 import NFLTables
-import NFLTables.Enumerations: S2018
-using  NFLTables.Schedules
+using  NFLTables.Enumerations: Season
+using  NFLTables.Schedules: schedule
 
 @testset "Test schedule retrieval" begin
-    df = getschedule(S2018, "REG", 4)
-    @test size(df) == (15, 13)
+    for season in instances(Season)
+        if Int(season) < 2018
+            continue
+        end
+        df = schedule(season)
+        @test size(df, 2) == 13
+        @test size(df, 1) > 300
+    end
 end
-
 
 end  # module TestSchedules

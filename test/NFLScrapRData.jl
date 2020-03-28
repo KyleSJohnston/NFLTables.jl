@@ -4,16 +4,7 @@ using  DataFrames
 using  Test
 
 using  NFLTables.NFLScrapRData
-import NFLTables.NFLScrapRData: gamepath, playbyplaypath, SEASONS, seasonparts, season_artifact
-
-@testset "nflscrapR-data path tests" begin
-    for season in SEASONS, part in seasonparts(season)
-        path = playbyplaypath(season, part)
-        @test isa(path, String)
-        path = gamepath(season, part)
-        @test isa(path, String)
-    end
-end
+import NFLTables.NFLScrapRData: SEASONS, seasonparts, season_artifact
 
 @testset "nflscrapR-data artifacts" begin
     for season in SEASONS
