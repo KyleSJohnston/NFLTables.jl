@@ -14,7 +14,6 @@ using  NFLTables.Enumerations: Season
 export schedule
 
 function extractdate(elem, season::Season)
-    @debug elem
     datestring = nodeText(eachmatch(Selector("span > span"), elem)[1])
     dayofweek, monthday = split(datestring, ", ")
     month, day = split(monthday)
@@ -51,19 +50,27 @@ function extractschedule(schedules_table, season::Season)
             end
             date = extractdate(elem, season)
         elseif occursin("schedules-list-matchup", elemclass)
-            d = eachmatch(Selector("div.schedules-list-content"), elem)[1]
-            push!(df, Dict(
-                :date => date,
-                :states => d.attributes["data-gamestate"],
-                :home => d.attributes["data-home-abbr"],
-                :away => d.attributes["data-away-abbr"],
-                :site => d.attributes["data-site"],
-                :gameid => parse(Int, d.attributes["data-gameid"]),
-                :gc_url => d.attributes["data-gc-url"],
-                :gametime => nodeText(eachmatch(Selector("span.time"), elem)[1]),
-                :homescore => parse(Int, nodeText(eachmatch(Selector("span.team-score.home"), elem)[1])),
-                :awayscore => parse(Int, nodeText(eachmatch(Selector("span.team-score.away"), elem)[1])),
-            ))
+            try
+                d = eachmatch(Selector("div.schedules-list-content"), elem)[1]
+                if occursin("type-pro", getattr(d, "class"))
+                    continue
+                end
+                push!(df, Dict(
+                    :date => date,
+                    :states => d.attributes["data-gamestate"],
+                    :home => d.attributes["data-home-abbr"],
+                    :away => d.attributes["data-away-abbr"],
+                    :site => d.attributes["data-site"],
+                    :gameid => parse(Int, d.attributes["data-gameid"]),
+                    :gc_url => d.attributes["data-gc-url"],
+                    :gametime => nodeText(eachmatch(Selector("span.time"), elem)[1]),
+                    :homescore => parse(Int, nodeText(eachmatch(Selector("span.team-score.home"), elem)[1])),
+                    :awayscore => parse(Int, nodeText(eachmatch(Selector("span.team-score.away"), elem)[1])),
+                ))
+            catch e
+                @debug elem
+                rethrow(e)
+            end
         else
             error("Unknown elem: $elem")
         end

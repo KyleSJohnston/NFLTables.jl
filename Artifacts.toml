@@ -32,4 +32,7 @@ git-tree-sha1 = "0708f93995b5c9b7eedacd23ff689d175c400ec3"
 git-tree-sha1 = "01303de80db4c51809994e7ce4aa95201a15a0d6"
 
 [schedule_2018]
-git-tree-sha1 = "c6aab12122075e82dafce9fa31f7f2b858efa2ae"
+git-tree-sha1 = "f45a7835b71b028e85d3cab888d4760fe400959e"
+
+[schedule_2019]
+git-tree-sha1 = "17accb7c5bb83cd85b9a3e019c0e323b27708e86"
