@@ -13,7 +13,7 @@ SYMBOL_MAPPING = Dict(
 )
 
 @testset "comparing schedules and NFLScrapRData.game" begin
-    for season in instances(Enumerations.Season)
+    for season in NFLTables.NFLScrapRData.SEASONS
         if Int(season) < 2018
             continue
         end

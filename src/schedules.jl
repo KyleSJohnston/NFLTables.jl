@@ -9,24 +9,30 @@ using  HTTP
 # using  Logging
 
 import NFLTables
-using  NFLTables.Enumerations: Season
+import NFLTables.Enumerations: PRE, REG, POST
 
 export schedule
 
-function extractdate(elem, season::Season)
+const SEASONS = tuple(1970:2019...)
+
+function validseason(season::Integer)
+    return 1970 <= season <= 2019
+end
+
+function extractdate(elem, season::Integer)
     datestring = nodeText(eachmatch(Selector("span > span"), elem)[1])
     dayofweek, monthday = split(datestring, ", ")
     month, day = split(monthday)
     monthnum = findfirst(x -> x == month, ENGLISH.months)
     if monthnum > 7
-        return Date(Int(season), monthnum, parse(Int, day))
+        return Date(season, monthnum, parse(Int, day))
     else
-        return Date(Int(season)+1, monthnum, parse(Int, day))
+        return Date(season+oneunit(season), monthnum, parse(Int, day))
     end
 end
 
 
-function extractschedule(schedules_table, season::Season)
+function extractschedule(schedules_table, season::Integer)
 
     df = DataFrame(
         date = Date[],
@@ -78,7 +84,8 @@ function extractschedule(schedules_table, season::Season)
     return df
 end
 
-function downloadschedule(url::AbstractString, season::Season)
+function downloadschedule(url::AbstractString, season::Integer)
+    validseason(season) || error("Invalid season: $season")
     r = HTTP.get(url);
     r.status == 200 || error("Unable to get site (status: $(r.status))")
     h = parsehtml(String(r.body))
@@ -87,30 +94,34 @@ function downloadschedule(url::AbstractString, season::Season)
     return df
 end
 
-function scheduleurl(season::Season, part::AbstractString, week::Int)
-    return "http://www.nfl.com/schedules/$(Int(season))/$(part)$(week)"
+function scheduleurl(season::Integer, part::AbstractString, week::Int)
+    validseason(season) || error("Invalid season: $season")
+    return "http://www.nfl.com/schedules/$season/$part$week"
 end
 
-function scheduleurl(season::Season, part::AbstractString, week::Type{Nothing})
+function scheduleurl(season::Integer, part::AbstractString, week::Type{Nothing})
+    validseason(season) || error("Invalid season: $season")
     part == "POST" || error("only POST can be downloaded without a week")
-    return "http://www.nfl.com/schedules/$(Int(season))/$(part)"
+    return "http://www.nfl.com/schedules/$season/$part"
 end
 
 
-function seasonweeks(season::Season)
+function seasonweeks(season::Integer)
+    validseason(season) || error("Invalid season: $season")
     rtn = Tuple{String,Any}[]
     for i in 0:4
-        push!(rtn, ("PRE", i))
+        push!(rtn, (PRE, i))
     end
     for i in 1:17
-        push!(rtn, ("REG", i))
+        push!(rtn, (REG, i))
     end
-    push!(rtn, ("POST", Nothing))
+    push!(rtn, (POST, Nothing))
     return rtn
 end
 
 
-function downloadschedule(season::Season)
+function downloadschedule(season::Integer)
+    validseason(season) || error("Invalid season: $season")
     dataframes = DataFrame[]
     for (part, week) in seasonweeks(season)
         url = scheduleurl(season, part, week)
@@ -124,8 +135,9 @@ function downloadschedule(season::Season)
     return vcat(dataframes...)
 end
 
-function schedule(season::Season)
-    name = "schedule_$(Int(season))"
+function schedule(season::Integer)
+    validseason(season) || error("Invalid season: $season")
+    name = "schedule_$(season)"
     path = NFLTables.Artifacts.get(name) do artifact_dir
         df = downloadschedule(season)
         sort!(df, [:gameid])
@@ -133,7 +145,5 @@ function schedule(season::Season)
     end
     return CSV.File(joinpath(path, "schedule.csv")) |> DataFrame!
 end
-
-schedule(season::Int) = schedule(Season(season))
 
 end  # module Schedules

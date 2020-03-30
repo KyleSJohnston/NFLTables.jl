@@ -2,12 +2,18 @@ module TestSchedules
 
 using  Test
 import NFLTables
-using  NFLTables.Enumerations: Season
-using  NFLTables.Schedules: schedule
+using  NFLTables.Schedules: SEASONS, schedule, validseason
+
+@testset "Valid Seasons" begin
+    @test length(SEASONS) == 50
+    for season in SEASONS
+        @test validseason(season)
+    end
+end
 
 @testset "Test schedule retrieval" begin
-    for season in instances(Season)
-        if Int(season) < 2018
+    for season in SEASONS
+        if season < 2018
             continue
         end
         df = schedule(season)

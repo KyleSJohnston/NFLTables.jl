@@ -5,60 +5,7 @@ export Season, SeasonPart, SuperBowl
 """
 parts of a single season
 """
-@enum SeasonPart pre reg post
-
-@enum Season begin
-    S1970 = 1970
-    S1971 = 1971
-    S1972 = 1972
-    S1973 = 1973
-    S1974 = 1974
-    S1975 = 1975
-    S1976 = 1976
-    S1977 = 1977
-    S1978 = 1978
-    S1979 = 1979
-    S1980 = 1980
-    S1981 = 1981
-    S1982 = 1982
-    S1983 = 1983
-    S1984 = 1984
-    S1985 = 1985
-    S1986 = 1986
-    S1987 = 1987
-    S1988 = 1988
-    S1989 = 1989
-    S1990 = 1990
-    S1991 = 1991
-    S1992 = 1992
-    S1993 = 1993
-    S1994 = 1994
-    S1995 = 1995
-    S1996 = 1996
-    S1997 = 1997
-    S1998 = 1998
-    S1999 = 1999
-    S2000 = 2000
-    S2001 = 2001
-    S2002 = 2002
-    S2003 = 2003
-    S2004 = 2004
-    S2005 = 2005
-    S2006 = 2006
-    S2007 = 2007
-    S2008 = 2008
-    S2009 = 2009
-    S2010 = 2010
-    S2011 = 2011
-    S2012 = 2012
-    S2013 = 2013
-    S2014 = 2014
-    S2015 = 2015
-    S2016 = 2016
-    S2017 = 2017
-    S2018 = 2018
-    S2019 = 2019
-end
+@enum SeasonPart PRE REG POST
 
 @enum SuperBowl begin
     SB_I       = 1966
@@ -120,8 +67,5 @@ end
     # SB_LVII    = 2022
     # SB_LVIII   = 2023
 end
-
-Season(x::SuperBowl) = Season(Int(x))
-SuperBowl(x::Season) = SuperBowl(Int(x))
 
 end  # module Enumerations

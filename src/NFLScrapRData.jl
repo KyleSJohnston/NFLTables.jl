@@ -15,19 +15,19 @@ export game, playbyplay, seasons, seasonparts, validseason, validpart
 """
 seasons with nflscrapR data
 """
-const SEASONS = tuple([Season(yr) for yr in 2009:2019]...)
+const SEASONS = tuple(2009:2019...)
 
 """
 returns true if `season` is valid
 """
-function validseason(season::Season)
-    return season in SEASONS
+function validseason(season::Integer)
+    return 2009 <= season <= 2019
 end
 
 """
 return an array of season parts for a valid season
 """
-function seasonparts(season::Season)
+function seasonparts(season::Integer)
     validseason(season) || error("Invalid season: $season")
     # if season == 2020:
     #     return (pre,)
@@ -38,43 +38,43 @@ end
 """
 returns true if `part` is valid for `season`
 """
-function validpart(season::Season, part::SeasonPart)
+function validpart(season::Integer, part::SeasonPart)
     return part in seasonparts(season)
 end
 
 """
-    playbyplay(season::Int, part::SeasonPart)
+    playbyplay(season::Integer, part::SeasonPart)
 
 Create a dataframe of play-by-play data for `part` of `season`.
 Supplying a value for `root` will override the default, allowing users to
 reference a local clone of the nflscrapR-data repository.
 """
-function playbyplay(season::Season, part::SeasonPart)
+function playbyplay(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
     path = season_artifact(season)
-    return CSV.File(joinpath(path, "pbp_$part.csv"), missingstring="NA") |> DataFrame!
+    return CSV.File(joinpath(path, "pbp_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
 end
 
 """
-    game(season::Season, part::SeasonPart)
+    game(season::Integer, part::SeasonPart)
 
 Create a dataframe of game data for `part` of `season`.
 Supplying a value for `root` will override the default, allowing users to
 reference a local clone of the nflscrapR-data repository.
 """
-function game(season::Season, part::SeasonPart)
+function game(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
     path = season_artifact(season)
-    return CSV.File(joinpath(path, "game_$part.csv"), missingstring="NA") |> DataFrame!
+    return CSV.File(joinpath(path, "game_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
 end
 
 """
 Aliases for the parts of the season
 """
 const partaliases = Dict{SeasonPart,AbstractString}(
-    Enumerations.pre => "pre",
-    Enumerations.reg => "regular",
-    Enumerations.post => "post"
+    Enumerations.PRE => "pre",
+    Enumerations.REG => "regular",
+    Enumerations.POST => "post"
 )
 
 """
@@ -86,30 +86,28 @@ const REPOROOT = "https://raw.githubusercontent.com/ryurko/nflscrapR-data/master
 Artifacts are entire directories of data, so we should have one NFLScrapR
 directory for each year (tradeoff between amount of data and likelihood of change).
 """
-function season_artifact(season::Season; redownload::Bool=false)
+function season_artifact(season::Integer; redownload::Bool=false)
     validseason(season) || error("Invalid season: $season")
-    name = "nflscrapR_$(Int(season))"
+    name = "nflscrapR_$(season)"
     path = NFLTables.Artifacts.get(name) do artifact_dir
         for part in seasonparts(season)
             gamepath = joinpath(
                 REPOROOT,
                 "games_data",
                 "$(partaliases[part])_season",
-                "$(part)_games_$(Int(season)).csv"
+                "$(lowercase(string(part)))_games_$(season).csv"
             )
-            download(gamepath, joinpath(artifact_dir, "game_$(part).csv"))
+            download(gamepath, joinpath(artifact_dir, "game_$(lowercase(string(part))).csv"))
             playbyplaypath = joinpath(
                 REPOROOT,
                 "play_by_play_data",
                 "$(partaliases[part])_season",
-                "$(part)_pbp_$(Int(season)).csv"
+                "$(lowercase(string(part)))_pbp_$(season).csv"
             )
-            download(playbyplaypath, joinpath(artifact_dir, "pbp_$(part).csv"))
+            download(playbyplaypath, joinpath(artifact_dir, "pbp_$(lowercase(string(part))).csv"))
         end
     end
     return path
 end
-
-season_artifact(season::Int; redownload::Bool=false) = season_artifact(Season(season), redownload=redownload)
 
 end  # module NFLScrapRData
