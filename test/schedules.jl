@@ -16,7 +16,7 @@ end
         if season < 2018
             continue
         end
-        df = schedule(season)
+        df = schedule(season, redownload=true)
         @test size(df, 2) == 13
         @test size(df, 1) > 300
     end

@@ -31,7 +31,7 @@ SYMBOL_MAPPING = Dict(
             @test nrow(df) == nrow(nflscrapr_df)
             joined_df = join(df, nflscrapr_df, on=:gameid=>:game_id, kind=:outer)
             for (k, v) in pairs(SYMBOL_MAPPING)
-                @test all(joined_df[:, k] .== joined_df[:, v])
+                @test all(joined_df[:, k] .== joined_df[:, v] joined_df[:, k] )
             end
         end
     end

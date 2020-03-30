@@ -9,7 +9,7 @@ using  HTTP
 # using  Logging
 
 import NFLTables
-import NFLTables.Enumerations: PRE, REG, POST
+import NFLTables.Enumerations: PRE, POST, REG, SeasonPart
 
 export schedule
 
@@ -42,9 +42,9 @@ function extractschedule(schedules_table, season::Integer)
         site = String[],
         gameid = Int[],
         gc_url = String[],
-        gametime = String[],
-        homescore = Int[],
-        awayscore = Int[],
+        gametime = Union{String,Missing}[],
+        homescore = Union{Int,Missing}[],
+        awayscore = Union{Int,Missing}[],
     )
 
     date = nothing
@@ -58,20 +58,31 @@ function extractschedule(schedules_table, season::Integer)
         elseif occursin("schedules-list-matchup", elemclass)
             try
                 d = eachmatch(Selector("div.schedules-list-content"), elem)[1]
-                if occursin("type-pro", getattr(d, "class"))
-                    continue
+
+                if d.attributes["data-gamestate"] == "PRE"
+                    gametime = missing
+                    homescore = missing
+                    awayscore = missing
+                else
+                    gametime = nodeText(eachmatch(Selector("span.time"), elem)[1])
+                    homescore = parse(Int, nodeText(eachmatch(Selector("span.team-score.home"), elem)[1]))
+                    awayscore = parse(Int, nodeText(eachmatch(Selector("span.team-score.away"), elem)[1]))
+                end
+
+                if isnothing(date)
+                    @warn "Inferring date from gameid"
                 end
                 push!(df, Dict(
-                    :date => date,
+                    :date => isnothing(date) ? Date(d.attributes["data-gameid"][1:8], "yyyymmdd") : date,
                     :states => d.attributes["data-gamestate"],
                     :home => d.attributes["data-home-abbr"],
                     :away => d.attributes["data-away-abbr"],
                     :site => d.attributes["data-site"],
                     :gameid => parse(Int, d.attributes["data-gameid"]),
                     :gc_url => d.attributes["data-gc-url"],
-                    :gametime => nodeText(eachmatch(Selector("span.time"), elem)[1]),
-                    :homescore => parse(Int, nodeText(eachmatch(Selector("span.team-score.home"), elem)[1])),
-                    :awayscore => parse(Int, nodeText(eachmatch(Selector("span.team-score.away"), elem)[1])),
+                    :gametime => gametime,
+                    :homescore => homescore,
+                    :awayscore => awayscore,
                 ))
             catch e
                 @debug elem
@@ -94,21 +105,21 @@ function downloadschedule(url::AbstractString, season::Integer)
     return df
 end
 
-function scheduleurl(season::Integer, part::AbstractString, week::Int)
+function scheduleurl(season::Integer, part::SeasonPart, week::Int)
     validseason(season) || error("Invalid season: $season")
-    return "http://www.nfl.com/schedules/$season/$part$week"
+    return "http://www.nfl.com/schedules/$season/$(string(part))$week"
 end
 
-function scheduleurl(season::Integer, part::AbstractString, week::Type{Nothing})
+function scheduleurl(season::Integer, part::SeasonPart, week::Type{Nothing})
     validseason(season) || error("Invalid season: $season")
-    part == "POST" || error("only POST can be downloaded without a week")
-    return "http://www.nfl.com/schedules/$season/$part"
+    part === POST || error("only POST can be downloaded without a week")
+    return "http://www.nfl.com/schedules/$season/$(string(part))"
 end
 
 
 function seasonweeks(season::Integer)
     validseason(season) || error("Invalid season: $season")
-    rtn = Tuple{String,Any}[]
+    rtn = Tuple{SeasonPart,Any}[]
     for i in 0:4
         push!(rtn, (PRE, i))
     end
@@ -135,10 +146,10 @@ function downloadschedule(season::Integer)
     return vcat(dataframes...)
 end
 
-function schedule(season::Integer)
+function schedule(season::Integer; redownload::Bool=false)
     validseason(season) || error("Invalid season: $season")
     name = "schedule_$(season)"
-    path = NFLTables.Artifacts.get(name) do artifact_dir
+    path = NFLTables.Artifacts.get(name, redownload=redownload) do artifact_dir
         df = downloadschedule(season)
         sort!(df, [:gameid])
         CSV.write(joinpath(artifact_dir, "schedule.csv"), df)
