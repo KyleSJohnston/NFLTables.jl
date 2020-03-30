@@ -56,6 +56,11 @@ function extractschedule(schedules_table, season::Integer)
             end
             date = extractdate(elem, season)
         elseif occursin("schedules-list-matchup", elemclass)
+            if isnothing(date)
+                # A matchup occurs before a date is specified (2019 pro bowl is
+                # in the schedule twice) and can be skipped.
+                continue
+            end
             try
                 d = eachmatch(Selector("div.schedules-list-content"), elem)[1]
 
@@ -69,11 +74,8 @@ function extractschedule(schedules_table, season::Integer)
                     awayscore = parse(Int, nodeText(eachmatch(Selector("span.team-score.away"), elem)[1]))
                 end
 
-                if isnothing(date)
-                    @warn "Inferring date from gameid"
-                end
                 push!(df, Dict(
-                    :date => isnothing(date) ? Date(d.attributes["data-gameid"][1:8], "yyyymmdd") : date,
+                    :date => date,
                     :states => d.attributes["data-gamestate"],
                     :home => d.attributes["data-home-abbr"],
                     :away => d.attributes["data-away-abbr"],

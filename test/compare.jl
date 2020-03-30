@@ -14,12 +14,11 @@ SYMBOL_MAPPING = Dict(
 
 @testset "comparing schedules and NFLScrapRData.game" begin
     for season in NFLTables.NFLScrapRData.SEASONS
-        if Int(season) < 2018
+        if Int(season) < 2017
             continue
         end
         schedule_df = schedule(season)
         for part in instances(Enumerations.SeasonPart)
-            println(part)
             df = schedule_df[
                 schedule_df.seasonpart .== uppercase(string(part)),
                 [:gameid, :home, :away, :homescore, :awayscore]
@@ -31,7 +30,7 @@ SYMBOL_MAPPING = Dict(
             @test nrow(df) == nrow(nflscrapr_df)
             joined_df = join(df, nflscrapr_df, on=:gameid=>:game_id, kind=:outer)
             for (k, v) in pairs(SYMBOL_MAPPING)
-                @test all(joined_df[:, k] .== joined_df[:, v] joined_df[:, k] )
+                @test isequal(joined_df[:, k], joined_df[:, v])
             end
         end
     end
