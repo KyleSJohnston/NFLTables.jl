@@ -13,12 +13,8 @@ end
 
 @testset "Test schedule retrieval" begin
     for season in SEASONS
-        if season < 2017
-            continue
-        end
         df = schedule(season, redownload=false)
         @test size(df, 2) == 13
-        @test size(df, 1) > 300
     end
 end
 

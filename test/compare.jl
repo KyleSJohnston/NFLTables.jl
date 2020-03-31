@@ -14,7 +14,7 @@ SYMBOL_MAPPING = Dict(
 
 @testset "comparing schedules and NFLScrapRData.game" begin
     for season in NFLTables.NFLScrapRData.SEASONS
-        if Int(season) < 2017
+        if !NFLTables.Schedules.validseason(season)
             continue
         end
         schedule_df = schedule(season)

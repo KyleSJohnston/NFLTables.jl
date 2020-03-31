@@ -1,11 +1,17 @@
 module Enumerations
 
+import Base.parse
 export Season, SeasonPart, SuperBowl
 
 """
 parts of a single season
 """
 @enum SeasonPart PRE REG POST
+
+function Base.parse(SeasonPart, str)
+    m = Dict([string(e) => e for e in instances(Enumerations.SeasonPart)]...)
+    return m[str]
+end
 
 @enum SuperBowl begin
     SB_I       = 1966

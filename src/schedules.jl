@@ -13,10 +13,12 @@ import NFLTables.Enumerations: PRE, POST, REG, SeasonPart
 
 export schedule
 
-const SEASONS = tuple(1970:2019...)
+const FIRSTSEASON = 1970
+const LASTSEASON  = 2019
+const SEASONS = tuple(FIRSTSEASON:LASTSEASON...)
 
 function validseason(season::Integer)
-    return 1970 <= season <= 2019
+    return FIRSTSEASON <= season <= LASTSEASON
 end
 
 function extractdate(elem, season::Integer)
