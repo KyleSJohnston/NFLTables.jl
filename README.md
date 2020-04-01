@@ -4,13 +4,36 @@
 Functions to access NFL data. Please create a GitHub issue to request a new
 dataset or report a bug.
 
+## NFL Schedules
+
+```julia
+julia> using NFLTables
+
+julia> scheduledf = nflschedule(2019);
+
+julia> size(scheduledf)
+(333, 13)
+
+julia> last(scheduledf, 5)
+5×13 DataFrames.DataFrame. Omitted printing of 3 columns
+│ Row │ date       │ states │ home   │ away   │ site                  │ gameid     │ gc_url                                                                        │ gametime │ homescore │ awayscore │
+│     │ Dates.Date │ String │ String │ String │ String                │ Int64      │ String                                                                        │ String⍰  │ Int64⍰    │ Int64⍰    │
+├─────┼────────────┼────────┼────────┼────────┼───────────────────────┼────────────┼───────────────────────────────────────────────────────────────────────────────┼──────────┼───────────┼───────────┤
+│ 1   │ 2020-01-12 │ POST   │ GB     │ SEA    │ Lambeau Field         │ 2020011201 │ http://www.nfl.com/gamecenter/2020011201/2019/POST19/seahawks@packers         │ FINAL    │ 28        │ 23        │
+│ 2   │ 2020-01-19 │ POST   │ KC     │ TEN    │ Arrowhead Stadium     │ 2020011900 │ http://www.nfl.com/gamecenter/2020011900/2019/POST20/titans@chiefs            │ FINAL    │ 35        │ 24        │
+│ 3   │ 2020-01-19 │ POST   │ SF     │ GB     │ Levi's� Stadium       │ 2020011901 │ http://www.nfl.com/gamecenter/2020011901/2019/POST20/packers@49ers            │ FINAL    │ 37        │ 20        │
+│ 4   │ 2020-01-26 │ PRE    │ APR    │ NPR    │ Camping World Stadium │ 2020012600 │ http://www.nfl.com/gamecenter/2020012600/2019/PRO21/nfc-pro-bowl@afc-pro-bowl │ missing  │ missing   │ missing   │
+│ 5   │ 2020-02-02 │ POST   │ KC     │ SF     │ Hard Rock Stadium     │ 2020020200 │ http://www.nfl.com/gamecenter/2020020200/2019/POST22/49ers@chiefs             │ FINAL    │ 31        │ 20        │
+
+```
+
 ## NFLScrapRData
 
 The NFLScrapRData module makes it convenient to read nflscrapR-data as a
 dataframe.
 
 ```julia
-julia> using NFLTables.NFLScrapRData
+julia> using NFLTables
 
 julia> using DataFrames
 
@@ -22,7 +45,7 @@ argument. In the examples below, the local clone is specified with an
 environment variable.
 
 ```julia
-julia> gamesdf = game(2018, "reg", root=ENV["NFLSCRAPR_DATA"]);
+julia> gamesdf = nflscrapRgame(2018, REG);
 
 julia> size(gamesdf)
 (256, 10)
@@ -57,7 +80,7 @@ Play-by-play information is also available; use the `playbyplay` function to
 load it into a dataframe.
 
 ```julia
-julia> pbpdf = playbyplay(2018, "reg", root=ENV["NFLSCRAPR_DATA"]);
+julia> pbpdf = nflscrapRplaybyplay(2018, REG);
 
 julia> size(pbpdf)
 (45156, 256)
