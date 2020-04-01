@@ -1,7 +1,6 @@
 module NFLTablesTest
 
 using  Logging
-using  NFLTables
 
 # Configure logging
 logger = Logging.ConsoleLogger(stderr, Logging.Debug)

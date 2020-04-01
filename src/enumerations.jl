@@ -1,10 +1,9 @@
 module Enumerations
 
 import Base.parse
-export Season, SeasonPart, SuperBowl
 
 """
-parts of a single season
+Parts of a single season
 """
 @enum SeasonPart PRE REG POST
 
@@ -13,6 +12,9 @@ function Base.parse(SeasonPart, str)
     return m[str]
 end
 
+"""
+An enumeration of the SuperBowls as stylized/marketed (with the season as the value)
+"""
 @enum SuperBowl begin
     SB_I       = 1966
     SB_II      = 1967

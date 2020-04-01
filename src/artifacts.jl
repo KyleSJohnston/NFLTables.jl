@@ -6,6 +6,10 @@ using  Pkg.Artifacts:
 const ARTIFACT_TOML = joinpath(@__DIR__, "..", "Artifacts.toml")
 
 """
+Obtains an artifact by name:
+1. Attempts to source it by checking Artifacts.toml for `name`.
+2. Falls back to using `f` to obtain the artifact, then stores it as `name` in Artifacts.toml.
+
 Adapted from https://julialang.github.io/Pkg.jl/v1/artifacts/#Using-Artifacts-1
 """
 function get(f::Function, name::AbstractString; redownload::Bool=false)
@@ -20,6 +24,9 @@ function get(f::Function, name::AbstractString; redownload::Bool=false)
 
 end
 
+"""
+Obtains the `name` artifact, failing if it does not exist.
+"""
 get(name::AbstractString) = artifact_path(artifact_hash(name, ARTIFACT_TOML))
 
 end  # module Artifacts

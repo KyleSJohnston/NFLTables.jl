@@ -6,12 +6,9 @@ using  DataFrames
 using  Dates: Date, ENGLISH
 using  Gumbo
 using  HTTP
-# using  Logging
 
-import NFLTables
-import NFLTables.Enumerations: PRE, POST, REG, SeasonPart
-
-export schedule
+import ..Artifacts
+using  ..Enumerations: PRE, POST, REG, SeasonPart
 
 const FIRSTSEASON = 1970
 const LASTSEASON  = 2019
@@ -150,10 +147,13 @@ function downloadschedule(season::Integer)
     return vcat(dataframes...)
 end
 
-function schedule(season::Integer; redownload::Bool=false)
+"""
+Obtain the NFL schedule for `season` (optionally force a `redownload`)
+"""
+function nflschedule(season::Integer; redownload::Bool=false)
     validseason(season) || error("Invalid season: $season")
     name = "schedule_$(season)"
-    path = NFLTables.Artifacts.get(name, redownload=redownload) do artifact_dir
+    path = Artifacts.get(name, redownload=redownload) do artifact_dir
         df = downloadschedule(season)
         sort!(df, [:gameid])
         CSV.write(joinpath(artifact_dir, "schedule.csv"), df)

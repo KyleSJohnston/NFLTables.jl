@@ -3,7 +3,6 @@ module TestCompare
 using  DataFrames: join, nrow
 using  Test
 using  NFLTables
-using  NFLTables.Schedules: schedule
 
 SYMBOL_MAPPING = Dict(
     :home => :home_team,
@@ -17,13 +16,13 @@ SYMBOL_MAPPING = Dict(
         if !NFLTables.Schedules.validseason(season)
             continue
         end
-        schedule_df = schedule(season)
-        for part in instances(Enumerations.SeasonPart)
+        schedule_df = nflschedule(season)
+        for part in instances(SeasonPart)
             df = schedule_df[
                 schedule_df.seasonpart .== uppercase(string(part)),
                 [:gameid, :home, :away, :homescore, :awayscore]
             ]
-            nflscrapr_df = NFLTables.NFLScrapRData.game(season, part)[
+            nflscrapr_df = nflscrapRgame(season, part)[
                 :,
                 [:game_id, :home_team, :away_team, :home_score, :away_score]
             ]

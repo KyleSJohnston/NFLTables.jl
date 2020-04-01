@@ -7,10 +7,9 @@ module NFLScrapRData
 
 using  CSV
 using  DataFrames
-import NFLTables
-using  ..Enumerations
 
-export game, playbyplay, seasons, seasonparts, validseason, validpart
+import ..Artifacts
+using  ..Enumerations: POST, PRE, REG, SeasonPart
 
 """
 seasons with nflscrapR data
@@ -30,7 +29,7 @@ return an array of season parts for a valid season
 function seasonparts(season::Integer)
     validseason(season) || error("Invalid season: $season")
     # if season == 2020:
-    #     return (pre,)
+    #     return (PRE,)
     # end
     return instances(SeasonPart)
 end
@@ -43,26 +42,18 @@ function validpart(season::Integer, part::SeasonPart)
 end
 
 """
-    playbyplay(season::Integer, part::SeasonPart)
-
 Create a dataframe of play-by-play data for `part` of `season`.
-Supplying a value for `root` will override the default, allowing users to
-reference a local clone of the nflscrapR-data repository.
 """
-function playbyplay(season::Integer, part::SeasonPart)
+function nflscrapRplaybyplay(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
     path = season_artifact(season)
     return CSV.File(joinpath(path, "pbp_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
 end
 
 """
-    game(season::Integer, part::SeasonPart)
-
 Create a dataframe of game data for `part` of `season`.
-Supplying a value for `root` will override the default, allowing users to
-reference a local clone of the nflscrapR-data repository.
 """
-function game(season::Integer, part::SeasonPart)
+function nflscrapRgame(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
     path = season_artifact(season)
     return CSV.File(joinpath(path, "game_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
@@ -72,9 +63,7 @@ end
 Aliases for the parts of the season
 """
 const partaliases = Dict{SeasonPart,AbstractString}(
-    Enumerations.PRE => "pre",
-    Enumerations.REG => "regular",
-    Enumerations.POST => "post"
+    PRE => "pre", REG => "regular", POST => "post"
 )
 
 """
@@ -89,7 +78,7 @@ directory for each year (tradeoff between amount of data and likelihood of chang
 function season_artifact(season::Integer; redownload::Bool=false)
     validseason(season) || error("Invalid season: $season")
     name = "nflscrapR_$(season)"
-    path = NFLTables.Artifacts.get(name) do artifact_dir
+    path = Artifacts.get(name) do artifact_dir
         for part in seasonparts(season)
             gamepath = joinpath(
                 REPOROOT,
