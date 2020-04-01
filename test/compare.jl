@@ -12,10 +12,9 @@ SYMBOL_MAPPING = Dict(
 )
 
 @testset "comparing schedules and NFLScrapRData.game" begin
-    for season in NFLTables.NFLScrapRData.SEASONS
-        if !NFLTables.Schedules.validseason(season)
-            continue
-        end
+    let season = 2019
+        @test NFLTables.NFLScrapRData.validseason(season)
+        @test NFLTables.Schedules.validseason(season)
         schedule_df = nflschedule(season)
         for part in instances(SeasonPart)
             df = schedule_df[

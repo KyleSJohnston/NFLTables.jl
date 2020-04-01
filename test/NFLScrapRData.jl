@@ -12,7 +12,7 @@ using  NFLTables
 end
 
 @testset "nflscrapR-data artifacts" begin
-    for season in NFLTables.NFLScrapRData.SEASONS
+    let season = 2019
         path = NFLTables.NFLScrapRData.season_artifact(season, redownload=false)
         @test isa(path, String)
     end
@@ -21,11 +21,13 @@ end
 end
 
 @testset "nflscrapR-data df tests" begin
-    for season in NFLTables.NFLScrapRData.SEASONS, part in NFLTables.NFLScrapRData.seasonparts(season)
-        df = nflscrapRplaybyplay(season, part)
-        @test isa(df, DataFrame)
-        df = nflscrapRgame(season, part)
-        @test isa(df, DataFrame)
+    let season = 2019
+        for part in NFLTables.NFLScrapRData.seasonparts(season)
+            df = nflscrapRplaybyplay(season, part)
+            @test isa(df, DataFrame)
+            df = nflscrapRgame(season, part)
+            @test isa(df, DataFrame)
+        end
     end
 end
 

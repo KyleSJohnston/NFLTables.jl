@@ -11,10 +11,8 @@ using  NFLTables
 end
 
 @testset "Test schedule retrieval" begin
-    for season in NFLTables.Schedules.SEASONS
-        df = nflschedule(season, redownload=false)
-        @test size(df, 2) == 13
-    end
+    df = nflschedule(2019, redownload=false)
+    @test size(df, 2) == 13
 end
 
 end  # module TestSchedules
