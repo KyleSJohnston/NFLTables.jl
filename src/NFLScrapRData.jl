@@ -9,7 +9,7 @@ using  CSV
 using  DataFrames
 
 import ..Artifacts
-using  ..Enumerations: POST, PRE, REG, SeasonPart
+using  NFLTables: POST, PRE, REG, SeasonPart
 
 """
 seasons with nflscrapR data

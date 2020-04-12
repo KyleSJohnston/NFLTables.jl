@@ -8,7 +8,7 @@ using  Gumbo
 using  HTTP
 
 import ..Artifacts
-using  ..Enumerations: PRE, POST, REG, SeasonPart
+using  NFLTables: PRE, POST, REG, SeasonPart
 
 const FIRSTSEASON = 1970
 const LASTSEASON  = 2019

@@ -1,14 +1,23 @@
-module Enumerations
-
-import Base.parse
-
 """
 Parts of a single season
 """
 @enum SeasonPart PRE REG POST
 
-function Base.parse(SeasonPart, str)
-    m = Dict([string(e) => e for e in instances(Enumerations.SeasonPart)]...)
+import Base.parse
+
+"""
+    parse(SeasonPart, str)
+
+Parse `str` as a part of a season.
+
+# Examples
+```juliadoc
+julia> parse(SeasonPart, "REG")
+REG::SeasonPart = 1
+```
+"""
+function Base.parse(::Type{SeasonPart}, str::AbstractString)
+    m = Dict([string(e) => e for e in instances(SeasonPart)]...)
     return m[str]
 end
 
@@ -75,5 +84,3 @@ An enumeration of the SuperBowls as stylized/marketed (with the season as the va
     # SB_LVII    = 2022
     # SB_LVIII   = 2023
 end
-
-end  # module Enumerations
