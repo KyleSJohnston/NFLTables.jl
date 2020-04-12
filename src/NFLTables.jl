@@ -16,10 +16,4 @@ using  .Schedules: nflschedule
 # export the relevant API
 export nflscrapRplaybyplay, nflscrapRgame, POST, PRE, REG, nflschedule, SeasonPart, SuperBowl
 
-
-"""
-Obtain the NFL schedule for `season` (optionally force a `redownload`)
-"""
-const nflsked = nflschedule
-
 end # module

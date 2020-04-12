@@ -148,7 +148,22 @@ function downloadschedule(season::Integer)
 end
 
 """
+    nflschedule(season::Integer; redownload::Bool=false)
+
 Obtain the NFL schedule for `season` (optionally force a `redownload`)
+
+# Examples
+```jldoctest
+julia> df = nflschedule(2001);
+
+julia> df[end-1, [:home, :homescore, :away, :awayscore]]
+DataFrameRow
+│ Row │ home   │ homescore │ away   │ awayscore │
+│     │ String │ Int64     │ String │ Int64     │
+├─────┼────────┼───────────┼────────┼───────────┤
+│ 322 │ NE     │ 20        │ STL    │ 17        │
+
+```
 """
 function nflschedule(season::Integer; redownload::Bool=false)
     validseason(season) || error("Invalid season: $season")

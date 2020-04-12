@@ -4,6 +4,7 @@
 
 ```@docs
 SeasonPart
+parse(::Type{SeasonPart}, str::AbstractString)
 SuperBowl
 ```
 ## NFL Schedule Data

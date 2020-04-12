@@ -1,19 +1,37 @@
 """
 Parts of a single season
+
+# Examples
+```jldoctest
+julia> PRE
+PRE::SeasonPart = 0
+
+julia> REG
+REG::SeasonPart = 1
+
+julia> POST
+POST::SeasonPart = 2
+```
 """
 @enum SeasonPart PRE REG POST
 
 import Base.parse
 
 """
-    parse(SeasonPart, str)
+    parse(::Type{SeasonPart}, str::AbstractString)
 
 Parse `str` as a part of a season.
 
 # Examples
-```juliadoc
+```jldoctest
+julia> parse(SeasonPart, "PRE")
+PRE::SeasonPart = 0
+
 julia> parse(SeasonPart, "REG")
 REG::SeasonPart = 1
+
+julia> parse(SeasonPart, "POST")
+POST::SeasonPart = 2
 ```
 """
 function Base.parse(::Type{SeasonPart}, str::AbstractString)
@@ -23,6 +41,16 @@ end
 
 """
 An enumeration of the SuperBowls as stylized/marketed (with the season as the value)
+
+# Examples
+```jldoctest
+julia> SuperBowl(2001)
+SB_XXXVI::SuperBowl = 2001
+
+julia> SuperBowl(2015)
+SB_50::SuperBowl = 2015
+
+```
 """
 @enum SuperBowl begin
     SB_I       = 1966

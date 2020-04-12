@@ -42,7 +42,26 @@ function validpart(season::Integer, part::SeasonPart)
 end
 
 """
+    nflscrapRplaybyplay(season::Integer, part::SeasonPart)
+
 Create a dataframe of play-by-play data for `part` of `season`.
+
+# Examples
+```jldoctest
+julia> df = nflscrapRplaybyplay(2018, POST);
+
+julia> first(df, 5)
+5×256 DataFrames.DataFrame. Omitted printing of 244 columns
+│ Row │ play_id │ game_id    │ home_team │ away_team │ posteam │ posteam_type │ defteam │ side_of_field │ yardline_100 │ game_date  │ quarter_seconds_remaining │ half_seconds_remaining │
+│     │ Int64   │ Int64      │ String    │ String    │ String⍰ │ String⍰      │ String⍰ │ String        │ Int64⍰       │ Dates.Date │ Int64                     │ Int64                  │
+├─────┼─────────┼────────────┼───────────┼───────────┼─────────┼──────────────┼─────────┼───────────────┼──────────────┼────────────┼───────────────────────────┼────────────────────────┤
+│ 1   │ 36      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ HOU           │ 35           │ 2019-01-05 │ 900                       │ 1800                   │
+│ 2   │ 51      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 900                       │ 1800                   │
+│ 3   │ 76      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 860                       │ 1760                   │
+│ 4   │ 98      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 77           │ 2019-01-05 │ 814                       │ 1714                   │
+│ 5   │ 123     │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 65           │ 2019-01-05 │ 774                       │ 1674                   │
+
+```
 """
 function nflscrapRplaybyplay(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
@@ -51,7 +70,22 @@ function nflscrapRplaybyplay(season::Integer, part::SeasonPart)
 end
 
 """
+    nflscrapRgame(season::Integer, part::SeasonPart)
+
 Create a dataframe of game data for `part` of `season`.
+
+# Examples
+```jldoctest
+julia> df = nflscrapRgame(2018, POST);
+
+julia> df[end, [:game_id, :home_team, :home_score, :away_team, :away_score]]
+DataFrameRow
+│ Row │ game_id    │ home_team │ home_score │ away_team │ away_score │
+│     │ Int64      │ String    │ Int64      │ String    │ Int64      │
+├─────┼────────────┼───────────┼────────────┼───────────┼────────────┤
+│ 12  │ 2019020300 │ LA        │ 3          │ NE        │ 13         │
+
+```
 """
 function nflscrapRgame(season::Integer, part::SeasonPart)
     validpart(season, part) || error("Invalid part ($part) for season $season")
