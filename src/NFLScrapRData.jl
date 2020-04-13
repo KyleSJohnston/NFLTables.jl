@@ -5,9 +5,6 @@ See https://github.com/ryurko/nflscrapR-data/ for additional data documentation.
 """
 module NFLScrapRData
 
-using  CSV
-using  DataFrames
-
 using  NFLTables: getartifact, POST, PRE, REG, SeasonPart
 
 """

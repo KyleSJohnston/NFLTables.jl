@@ -1,19 +1,18 @@
 module Schedules
 
-import CSV
 using  Cascadia
 using  DataFrames
 using  Dates: Date, ENGLISH
 using  Gumbo
 using  HTTP
 
-using  NFLTables: getartifact, PRE, POST, REG, SeasonPart
+using  NFLTables: getartifact, POST, PRE, REG, SeasonPart
 
 const FIRSTSEASON = 1970
 const LASTSEASON  = 2019
 const SEASONS = tuple(FIRSTSEASON:LASTSEASON...)
 
-function validseason(season::Integer)
+function hasdata(season::Integer)
     return FIRSTSEASON <= season <= LASTSEASON
 end
 
@@ -96,7 +95,7 @@ function extractschedule(schedules_table, season::Integer)
 end
 
 function downloadschedule(url::AbstractString, season::Integer)
-    validseason(season) || error("Invalid season: $season")
+    hasdata(season) || error("Invalid season: $season")
     r = HTTP.get(url);
     r.status == 200 || error("Unable to get site (status: $(r.status))")
     h = parsehtml(String(r.body))
@@ -106,19 +105,19 @@ function downloadschedule(url::AbstractString, season::Integer)
 end
 
 function scheduleurl(season::Integer, part::SeasonPart, week::Integer)
-    validseason(season) || error("Invalid season: $season")
+    hasdata(season) || error("Invalid season: $season")
     return "http://www.nfl.com/schedules/$season/$(string(part))$week"
 end
 
 function scheduleurl(season::Integer, part::SeasonPart, week::Type{Nothing})
-    validseason(season) || error("Invalid season: $season")
+    hasdata(season) || error("Invalid season: $season")
     part === POST || error("only POST can be downloaded without a week")
     return "http://www.nfl.com/schedules/$season/$(string(part))"
 end
 
 
 function seasonweeks(season::Integer)
-    validseason(season) || error("Invalid season: $season")
+    hasdata(season) || error("Invalid season: $season")
     rtn = Tuple{SeasonPart,Any}[]
     for i in 0:4
         push!(rtn, (PRE, i))
@@ -132,7 +131,7 @@ end
 
 
 function downloadschedule(season::Integer)
-    validseason(season) || error("Invalid season: $season")
+    hasdata(season) || error("Invalid season: $season")
     dataframes = DataFrame[]
     for (part, week) in seasonweeks(season)
         url = scheduleurl(season, part, week)
@@ -168,7 +167,7 @@ DataFrameRow
 ```
 """
 function nflschedule(season::Integer; redownload::Bool=false)
-    Schedules.validseason(season) || error("Invalid season: $season")
+    Schedules.hasdata(season) || error("Invalid season: $season")
     name = "schedule_$(season)"
     path = getartifact(name, redownload=redownload) do artifact_dir
         df = Schedules.downloadschedule(season)
