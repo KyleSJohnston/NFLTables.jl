@@ -7,8 +7,7 @@ using  Dates: Date, ENGLISH
 using  Gumbo
 using  HTTP
 
-import ..Artifacts
-using  NFLTables: PRE, POST, REG, SeasonPart
+using  NFLTables: getartifact, PRE, POST, REG, SeasonPart
 
 const FIRSTSEASON = 1970
 const LASTSEASON  = 2019
@@ -106,7 +105,7 @@ function downloadschedule(url::AbstractString, season::Integer)
     return df
 end
 
-function scheduleurl(season::Integer, part::SeasonPart, week::Int)
+function scheduleurl(season::Integer, part::SeasonPart, week::Integer)
     validseason(season) || error("Invalid season: $season")
     return "http://www.nfl.com/schedules/$season/$(string(part))$week"
 end
@@ -147,6 +146,9 @@ function downloadschedule(season::Integer)
     return vcat(dataframes...)
 end
 
+end  # module Schedules
+
+
 """
     nflschedule(season::Integer; redownload::Bool=false)
 
@@ -166,14 +168,12 @@ DataFrameRow
 ```
 """
 function nflschedule(season::Integer; redownload::Bool=false)
-    validseason(season) || error("Invalid season: $season")
+    Schedules.validseason(season) || error("Invalid season: $season")
     name = "schedule_$(season)"
-    path = Artifacts.get(name, redownload=redownload) do artifact_dir
-        df = downloadschedule(season)
+    path = getartifact(name, redownload=redownload) do artifact_dir
+        df = Schedules.downloadschedule(season)
         sort!(df, [:gameid])
         CSV.write(joinpath(artifact_dir, "schedule.csv"), df)
     end
     return CSV.File(joinpath(path, "schedule.csv")) |> DataFrame!
 end
-
-end  # module Schedules
