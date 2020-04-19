@@ -7,7 +7,7 @@ using  NFLTables
 
 @testset "valid seasons" begin
     for season in NFLTables.NFLScrapRData.SEASONS
-        @test NFLTables.NFLScrapRData.validseason(season)
+        @test NFLTables.NFLScrapRData.hasdata(season)
     end
 end
 

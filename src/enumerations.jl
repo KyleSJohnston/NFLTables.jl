@@ -1,19 +1,56 @@
-module Enumerations
+"""
+Parts of a single season
+
+# Examples
+```jldoctest
+julia> PRE
+PRE::SeasonPart = 0
+
+julia> REG
+REG::SeasonPart = 1
+
+julia> POST
+POST::SeasonPart = 2
+```
+"""
+@enum SeasonPart PRE REG POST
 
 import Base.parse
 
 """
-Parts of a single season
-"""
-@enum SeasonPart PRE REG POST
+    parse(::Type{SeasonPart}, str::AbstractString)
 
-function Base.parse(SeasonPart, str)
-    m = Dict([string(e) => e for e in instances(Enumerations.SeasonPart)]...)
+Parse `str` as a part of a season.
+
+# Examples
+```jldoctest
+julia> parse(SeasonPart, "PRE")
+PRE::SeasonPart = 0
+
+julia> parse(SeasonPart, "REG")
+REG::SeasonPart = 1
+
+julia> parse(SeasonPart, "POST")
+POST::SeasonPart = 2
+```
+"""
+function Base.parse(::Type{SeasonPart}, str::AbstractString)
+    m = Dict([string(e) => e for e in instances(SeasonPart)]...)
     return m[str]
 end
 
 """
 An enumeration of the SuperBowls as stylized/marketed (with the season as the value)
+
+# Examples
+```jldoctest
+julia> SuperBowl(2001)
+SB_XXXVI::SuperBowl = 2001
+
+julia> SuperBowl(2015)
+SB_50::SuperBowl = 2015
+
+```
 """
 @enum SuperBowl begin
     SB_I       = 1966
@@ -75,5 +112,3 @@ An enumeration of the SuperBowls as stylized/marketed (with the season as the va
     # SB_LVII    = 2022
     # SB_LVIII   = 2023
 end
-
-end  # module Enumerations

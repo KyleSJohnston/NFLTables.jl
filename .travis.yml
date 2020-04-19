@@ -4,11 +4,18 @@ os:
   - linux
 julia:
   - nightly
-  - 1.3.0
-  - 1.3.1
-  - 1.4.0
+  - 1.3
+  - 1.4
 
-# Allow the nightly build to fail
-matrix:
+jobs:
   allow_failures:
-    - julia: nightly
+    - julia: nightly  # Allow the nightly build to fail
+  # include:
+  #   - stage: "Documentation"
+  #     julia: 1.3
+  #     os: linux
+  #     script:
+  #       - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));
+  #                                              Pkg.instantiate()'
+  #       - julia --project=docs/ docs/make.jl
+  #     after_success: skip
