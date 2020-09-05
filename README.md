@@ -4,7 +4,7 @@
 Functions to access NFL data. Please create a GitHub issue to request a new
 dataset or report a bug.
 
-Documentation: [NFLTables.jl](http://kylesjohnston.com/NFLTables.jl/)
+Documentation: [NFLTables.jl](https://kylesjohnston.github.io/NFLTables.jl/)
 
 ## NFL Schedules
 
