@@ -2,7 +2,7 @@ module TestCompare
 
 using  DataFrames: join, nrow
 using  Test
-using  NFLTables
+using  NFLTables: NFLScrapR, Schedules, SeasonPart
 
 SYMBOL_MAPPING = Dict(
     :home => :home_team,
@@ -11,17 +11,17 @@ SYMBOL_MAPPING = Dict(
     :awayscore => :away_score,
 )
 
-@testset "comparing schedules and NFLScrapRData.game" begin
+@testset "comparing schedules and NFLScrapR.game" begin
     let season = 2019
-        @test NFLTables.NFLScrapRData.hasdata(season)
-        @test NFLTables.Schedules.hasdata(season)
-        schedule_df = nflschedule(season)
+        @test season in NFLScrapR.SEASONS
+        @test Schedules.hasdata(season)
+        schedule_df = Schedules.schedule(season)
         for part in instances(SeasonPart)
             df = schedule_df[
                 schedule_df.seasonpart .== uppercase(string(part)),
                 [:gameid, :home, :away, :homescore, :awayscore]
             ]
-            nflscrapr_df = nflscrapRgame(season, part)[
+            nflscrapr_df = NFLScrapR.getgamedata(season, part)[
                 :,
                 [:game_id, :home_team, :away_team, :home_score, :away_score]
             ]

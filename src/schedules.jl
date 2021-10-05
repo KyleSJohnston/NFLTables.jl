@@ -1,12 +1,14 @@
 module Schedules
 
 using  Cascadia
+using  CSV
 using  DataFrames
 using  Dates: Date, ENGLISH
 using  Gumbo
 using  HTTP
 
-using  NFLTables: getartifact, POST, PRE, REG, SeasonPart
+using  NFLTables: POST, PRE, REG, SeasonPart
+using  ..Artifacts: getartifact
 
 const FIRSTSEASON = 1970
 const LASTSEASON  = 2019
@@ -145,17 +147,14 @@ function downloadschedule(season::Integer)
     return vcat(dataframes...)
 end
 
-end  # module Schedules
-
-
 """
-    nflschedule(season::Integer; redownload::Bool=false)
+    schedule(season::Integer; redownload::Bool=false)
 
 Obtain the NFL schedule for `season` (optionally force a `redownload`)
 
 # Examples
 ```jldoctest
-julia> df = nflschedule(2001);
+julia> df = schedule(2001);
 
 julia> df[end-1, [:home, :homescore, :away, :awayscore]]
 DataFrameRow
@@ -166,8 +165,8 @@ DataFrameRow
 
 ```
 """
-function nflschedule(season::Integer; redownload::Bool=false)
-    Schedules.hasdata(season) || error("Invalid season: $season")
+function schedule(season::Integer; redownload::Bool=false)
+    hasdata(season) || error("Invalid season: $season")
     name = "schedule_$(season)"
     path = getartifact(name, redownload=redownload) do artifact_dir
         df = Schedules.downloadschedule(season)
@@ -176,3 +175,7 @@ function nflschedule(season::Integer; redownload::Bool=false)
     end
     return CSV.File(joinpath(path, "schedule.csv")) |> DataFrame!
 end
+
+end  # module Schedules
+
+nflschedule = Schedules.schedule

@@ -3,8 +3,7 @@ Provides functions to access NFL data in a tabular format.
 """
 module NFLTables
 
-using  CSV
-using  DataFrames
+ARTIFACT_TOML = joinpath(splitdir(@__DIR__)[1], "Artifacts.toml")
 
 # include submodules
 include("enumerations.jl")
