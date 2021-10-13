@@ -111,7 +111,7 @@ function getplaydata(season::Integer, part::SeasonPart)
         rethrow()
     end
     filepath = joinpath(artifact_dir, getfilepath("play_by_play", part, season))
-    return CSV.File(filepath, missingstring="NA") |> DataFrame!
+    return DataFrame(CSV.File(filepath, missingstring="NA"))
 end
 getplaydata(season::Integer, part::String) = getplaydata(season, parse(SeasonPart, part))
 
@@ -144,7 +144,7 @@ function getgamedata(season::Integer, part::SeasonPart)
         rethrow()
     end
     filepath = joinpath(artifact_dir, getfilepath("games", part, season))
-    return CSV.File(filepath, missingstring="NA") |> DataFrame!
+    return DataFrame(CSV.File(filepath, missingstring="NA"))
 end
 getgamedata(season::Integer, part::String) = getgamedata(season, parse(SeasonPart, part))
 
