@@ -37,16 +37,16 @@ function getfilepath(datatype::String, seasonpart::String, season::Integer)::Str
 end
 
 """
-    download_data(dir; redownload=false)
+    download_data(dir; redownload=false, reporoot=REPOROOT)
 
 Download nflscrapR data to `dir` (overwrite existing if `redownload` is true)
 """
-function download_data(dir; redownload=false)
+function download_data(dir; redownload=false, reporoot=REPOROOT)
     for datatype in ("games", "play_by_play")
         for seasonpart in ("pre", "regular", "post")
             for season in SEASONS
                 filepath = getfilepath(datatype, seasonpart, season)
-                remotepath = joinpath(REPOROOT, "$(datatype)_data", "$(seasonpart)_season", filepath)
+                remotepath = joinpath(reporoot, "$(datatype)_data", "$(seasonpart)_season", filepath)
                 localpath = joinpath(dir, filepath)
                 if redownload || !isfile(localpath)
                     @info "downloading..." remotepath localpath
@@ -58,17 +58,17 @@ function download_data(dir; redownload=false)
 end
 
 """
-    download_artifact(; redownload=false)
+    download_artifact(; redownload=false, reporoot=REPOROOT)
 
 Download all nflscrapR data and store as an artifact (overwrite existing with `redownload=true`)
 """
-function download_artifact(; redownload=false)
+function download_artifact(; redownload=false, reporoot=REPOROOT)
     hash = artifact_hash("nflscrapR", ARTIFACT_TOML)  # or nothing
 
     if redownload || isnothing(hash) || !artifact_exists(hash)
         @info "Creating new nflscrapR artifact"
         hash = create_artifact() do artifact_dir
-            download_data(artifact_dir)
+            download_data(artifact_dir; reporoot)
         end
         @info "Download complete; updating Artifacts.toml"
         bind_artifact!(ARTIFACT_TOML, "nflscrapR", hash, force=true)
@@ -77,6 +77,20 @@ function download_artifact(; redownload=false)
     end
 end
 
+
+
+function load_data_from_disk(path)
+    artifact_dir = try
+        artifact"nflscrapR"
+    catch e
+        if isa(e, LoadError)
+            @error "Artifact data has not been downloaded; run NFLScrapR.download_artifact to fix"
+        end
+        rethrow()
+    end
+    filepath = joinpath(artifact_dir, path)
+    return DataFrame(CSV.File(filepath, missingstring="NA"))
+end
 
 """
     getplaydata(season::Integer, part::SeasonPart)
@@ -102,16 +116,7 @@ julia> first(df, 5)
 """
 function getplaydata(season::Integer, part::SeasonPart)
     season in SEASONS || error("Invalid season $season")
-    artifact_dir = try
-        artifact"nflscrapR"
-    catch e
-        if isa(e, LoadError)
-            @error "Artifact data has not been downloaded; run NFLScrapR.download_artifact to fix"
-        end
-        rethrow()
-    end
-    filepath = joinpath(artifact_dir, getfilepath("play_by_play", part, season))
-    return DataFrame(CSV.File(filepath, missingstring="NA"))
+    return load_data_from_disk(getfilepath("play_by_play", part, season))
 end
 getplaydata(season::Integer, part::String) = getplaydata(season, parse(SeasonPart, part))
 
@@ -135,16 +140,7 @@ DataFrameRow
 """
 function getgamedata(season::Integer, part::SeasonPart)
     season in SEASONS || error("Invalid season $season")
-    artifact_dir = try
-        artifact"nflscrapR"
-    catch e
-        if isa(e, LoadError)
-            @error "Artifact data has not been downloaded; run NFLScrapR.download_artifact to fix"
-        end
-        rethrow()
-    end
-    filepath = joinpath(artifact_dir, getfilepath("games", part, season))
-    return DataFrame(CSV.File(filepath, missingstring="NA"))
+    return load_data_from_disk(getfilepath("games", part, season))
 end
 getgamedata(season::Integer, part::String) = getgamedata(season, parse(SeasonPart, part))
 
