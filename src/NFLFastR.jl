@@ -14,6 +14,14 @@ using  ..NFLTables: ARTIFACT_TOML
 
 export getdata
 
+function __init__()
+    try
+        download_artifact()
+    catch e
+        @warn "Unable to download artifacts; functionality will be limited until you run NFLFastR.download_artifact"
+    end
+end
+
 """
 seasons with nflfastR data
 """

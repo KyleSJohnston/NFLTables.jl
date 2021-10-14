@@ -14,6 +14,14 @@ using  ..NFLTables: ARTIFACT_TOML, POST, PRE, REG, SeasonPart
 
 export getgamedata, getplaydata
 
+function __init__()
+    try
+        download_artifact()
+    catch e
+        @warn "Unable to download artifacts; functionality will be limited until you run NFLScrapR.download_artifact"
+    end
+end
+
 """
 seasons with nflscrapR data
 """

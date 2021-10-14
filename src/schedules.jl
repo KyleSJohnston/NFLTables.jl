@@ -11,7 +11,14 @@ using  Pkg.Artifacts
 using  URIs
 
 using  NFLTables: ARTIFACT_TOML, POST, PRE, REG, SeasonPart
-using  ..Artifacts: getartifact
+
+function __init__()
+    try
+        download_artifact()
+    catch e
+        @warn "Unable to download artifacts; functionality will be limited until you run Schedules.download_artifact"
+    end
+end
 
 const SEASONS = tuple(2010:2021...)
 
