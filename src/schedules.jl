@@ -7,6 +7,7 @@ using  Dates: Date, ENGLISH
 using  Gumbo: parsehtml
 using  HTTP
 using  JSON
+using  Logging
 using  Pkg.Artifacts
 using  URIs
 
