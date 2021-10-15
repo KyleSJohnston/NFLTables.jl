@@ -3,9 +3,24 @@ Module to access nflscrapR-data files
 
 See https://github.com/ryurko/nflscrapR-data/ for additional data documentation.
 """
-module NFLScrapRData
+module NFLScrapR
 
-using  NFLTables: getartifact, POST, PRE, REG, SeasonPart
+using  CSV
+using  DataFrames
+using  Logging
+using  Pkg.Artifacts
+using  Downloads
+using  ..NFLTables: ARTIFACT_TOML, POST, PRE, REG, SeasonPart
+
+export getgamedata, getplaydata
+
+function __init__()
+    try
+        download_artifact()
+    catch e
+        @warn "Unable to download artifacts; functionality will be limited until you run NFLScrapR.download_artifact"
+    end
+end
 
 """
 seasons with nflscrapR data
@@ -13,85 +28,88 @@ seasons with nflscrapR data
 const SEASONS = tuple(2009:2019...)
 
 """
-    hasdata(season::Integer)
-
-return true if `season` has data
-"""
-function hasdata(season::Integer)
-    return 2009 <= season <= 2019
-end
-
-"""
-return an array of season parts for a valid season
-"""
-function seasonparts(season::Integer)
-    hasdata(season) || error("Invalid season: $season")
-    # if season == 2020:
-    #     return (PRE,)
-    # end
-    return instances(SeasonPart)
-end
-
-"""
-    hasdata(season::Integer, part::SeasonPart)
-
-returns true if `part` is valid for `season`
-"""
-function hasdata(season::Integer, part::SeasonPart)
-    return part in seasonparts(season)
-end
-
-"""
-Aliases for the parts of the season
-"""
-const partaliases = Dict{SeasonPart,AbstractString}(
-    PRE => "pre", REG => "regular", POST => "post"
-)
-
-"""
 The root of the nflscrapR-data GitHub repo, after the raw redirect.
 """
-const REPOROOT = "https://raw.githubusercontent.com/ryurko/nflscrapR-data/master/"
+const REPOROOT = "https://github.com/ryurko/nflscrapR-data/raw/master/"
 
-"""
-Artifacts are entire directories of data, so we should have one NFLScrapR
-directory for each year (tradeoff between amount of data and likelihood of change).
-"""
-function season_artifact(season::Integer; redownload::Bool=false)
-    hasdata(season) || error("Invalid season: $season")
-    name = "nflscrapR_$(season)"
-    path = getartifact(name) do artifact_dir
-        for part in seasonparts(season)
-            gamepath = joinpath(
-                REPOROOT,
-                "games_data",
-                "$(partaliases[part])_season",
-                "$(lowercase(string(part)))_games_$(season).csv"
-            )
-            download(gamepath, joinpath(artifact_dir, "game_$(lowercase(string(part))).csv"))
-            playbyplaypath = joinpath(
-                REPOROOT,
-                "play_by_play_data",
-                "$(partaliases[part])_season",
-                "$(lowercase(string(part)))_pbp_$(season).csv"
-            )
-            download(playbyplaypath, joinpath(artifact_dir, "pbp_$(lowercase(string(part))).csv"))
-        end
-    end
-    return path
+
+function getfilepath(datatype::String, seasonpart::SeasonPart, season::Integer)::String
+    datatype in ("games", "play_by_play") || error("Invalid datatype $datatype")
+    shortdata = datatype == "play_by_play" ? "pbp" : datatype
+    shortpart = seasonpart |> string |> lowercase
+    return "$(shortpart)_$(shortdata)_$season.csv"
+end
+function getfilepath(datatype::String, seasonpart::String, season::Integer)::String
+    sp = parse(SeasonPart, seasonpart == "regular" ? "reg" : seasonpart)
+    return getfilepath(datatype, sp, season)
 end
 
-end  # module NFLScrapRData
-
+getseasonfolder(seasonpart::SeasonPart) = seasonpart === REG ? "regular_season" : "$(lowercase(string(seasonpart)))_season"
 
 """
-    nflscrapRplaybyplay(season::Integer, part::SeasonPart)
+    download_data(dir; redownload=false, reporoot=REPOROOT)
+
+Download nflscrapR data to `dir` (overwrite existing if `redownload` is true)
+"""
+function download_data(dir; redownload=false, reporoot=REPOROOT)
+    for datatype in ("games", "play_by_play")
+        for seasonpart in (PRE, REG, POST)
+            for season in SEASONS
+                filepath = getfilepath(datatype, seasonpart, season)
+                remotepath = joinpath(reporoot, "$(datatype)_data", getseasonfolder(seasonpart), filepath)
+                localpath = joinpath(dir, filepath)
+                if redownload || !isfile(localpath)
+                    @info "downloading..." remotepath localpath
+                    Downloads.download(remotepath, localpath)
+                end
+            end
+        end
+    end
+end
+
+"""
+    download_artifact(; redownload=false, reporoot=REPOROOT)
+
+Download all nflscrapR data and store as an artifact (overwrite existing with `redownload=true`)
+"""
+function download_artifact(; redownload=false, reporoot=REPOROOT)
+    hash = artifact_hash("nflscrapR", ARTIFACT_TOML)  # or nothing
+
+    if redownload || isnothing(hash) || !artifact_exists(hash)
+        @info "Creating new nflscrapR artifact"
+        hash = create_artifact() do artifact_dir
+            download_data(artifact_dir; reporoot)
+        end
+        @info "Download complete; updating Artifacts.toml"
+        bind_artifact!(ARTIFACT_TOML, "nflscrapR", hash, force=true)
+    else
+        @info "nflscrapR artifact already downloaded"
+    end
+end
+
+
+
+function load_data_from_disk(path)
+    artifact_dir = try
+        artifact"nflscrapR"
+    catch e
+        if isa(e, LoadError)
+            @error "Artifact data has not been downloaded; run NFLScrapR.download_artifact to fix"
+        end
+        rethrow()
+    end
+    filepath = joinpath(artifact_dir, path)
+    return DataFrame(CSV.File(filepath, missingstring="NA"))
+end
+
+"""
+    getplaydata(season::Integer, part::SeasonPart)
 
 Create a dataframe of play-by-play data for `part` of `season`.
 
 # Examples
 ```jldoctest
-julia> df = nflscrapRplaybyplay(2018, POST);
+julia> df = getplaydata(2018, POST);
 
 julia> first(df, 5)
 5×256 DataFrames.DataFrame. Omitted printing of 244 columns
@@ -106,20 +124,20 @@ julia> first(df, 5)
 
 ```
 """
-function nflscrapRplaybyplay(season::Integer, part::SeasonPart)
-    NFLScrapRData.hasdata(season, part) || error("Invalid part ($part) for season $season")
-    path = NFLScrapRData.season_artifact(season)
-    return CSV.File(joinpath(path, "pbp_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
+function getplaydata(season::Integer, part::SeasonPart)
+    season in SEASONS || error("Invalid season $season")
+    return load_data_from_disk(getfilepath("play_by_play", part, season))
 end
+getplaydata(season::Integer, part::String) = getplaydata(season, parse(SeasonPart, part))
 
 """
-    nflscrapRgame(season::Integer, part::SeasonPart)
+    getgamedata(season::Integer, part::SeasonPart)
 
 Create a dataframe of game data for `part` of `season`.
 
 # Examples
 ```jldoctest
-julia> df = nflscrapRgame(2018, POST);
+julia> df = getgamedata(2018, POST);
 
 julia> df[end, [:game_id, :home_team, :home_score, :away_team, :away_score]]
 DataFrameRow
@@ -130,8 +148,14 @@ DataFrameRow
 
 ```
 """
-function nflscrapRgame(season::Integer, part::SeasonPart)
-    NFLScrapRData.hasdata(season, part) || error("Invalid part ($part) for season $season")
-    path = NFLScrapRData.season_artifact(season)
-    return CSV.File(joinpath(path, "game_$(lowercase(string(part))).csv"), missingstring="NA") |> DataFrame!
+function getgamedata(season::Integer, part::SeasonPart)
+    season in SEASONS || error("Invalid season $season")
+    return load_data_from_disk(getfilepath("games", part, season))
 end
+getgamedata(season::Integer, part::String) = getgamedata(season, parse(SeasonPart, part))
+
+end  # module NFLScrapR
+
+# to support legacy calls
+nflscraprRgame = NFLScrapR.getgamedata
+nflscrapRplaybyplay = NFLScrapR.getplaydata
