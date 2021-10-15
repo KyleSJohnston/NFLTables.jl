@@ -30,7 +30,7 @@ const SEASONS = tuple(2009:2019...)
 """
 The root of the nflscrapR-data GitHub repo, after the raw redirect.
 """
-const REPOROOT = "https://raw.githubusercontent.com/ryurko/nflscrapR-data/master/"
+const REPOROOT = "https://github.com/ryurko/nflscrapR-data/raw/master/"
 
 
 function getfilepath(datatype::String, seasonpart::SeasonPart, season::Integer)::String
@@ -44,6 +44,8 @@ function getfilepath(datatype::String, seasonpart::String, season::Integer)::Str
     return getfilepath(datatype, sp, season)
 end
 
+getseasonfolder(seasonpart::SeasonPart) = seasonpart === REG ? "regular_season" : "$(lowercase(string(seasonpart)))_season"
+
 """
     download_data(dir; redownload=false, reporoot=REPOROOT)
 
@@ -51,10 +53,10 @@ Download nflscrapR data to `dir` (overwrite existing if `redownload` is true)
 """
 function download_data(dir; redownload=false, reporoot=REPOROOT)
     for datatype in ("games", "play_by_play")
-        for seasonpart in ("pre", "regular", "post")
+        for seasonpart in (PRE, REG, POST)
             for season in SEASONS
                 filepath = getfilepath(datatype, seasonpart, season)
-                remotepath = joinpath(reporoot, "$(datatype)_data", "$(seasonpart)_season", filepath)
+                remotepath = joinpath(reporoot, "$(datatype)_data", getseasonfolder(seasonpart), filepath)
                 localpath = joinpath(dir, filepath)
                 if redownload || !isfile(localpath)
                     @info "downloading..." remotepath localpath
