@@ -1,5 +1,9 @@
 # NFLTables Documentation
 
+```@meta
+CurrentModule = NFLTables
+```
+
 ## Enumerations
 
 ```@docs
@@ -7,15 +11,24 @@ SeasonPart
 parse(::Type{SeasonPart}, str::AbstractString)
 SuperBowl
 ```
+
 ## NFL Schedule Data
 
+
 ```@docs
-nflschedule
+Schedules.schedule
 ```
 
 ## nflscrapR Data
 
+
 ```@docs
-nflscrapRplaybyplay
-nflscrapRgame
+NFLScrapR.getplaydata
+NFLScrapR.getgamedata
+```
+
+# nflfastR Data
+
+```@docs
+NFLFastR.getdata
 ```

@@ -1,6 +1,9 @@
 module NFLTablesTest
 
+using  Documenter: DocMeta, doctest
 using  Logging
+
+using  NFLTables
 
 # Configure logging
 logger = Logging.ConsoleLogger(stderr, Logging.Debug)
@@ -13,5 +16,14 @@ with_logger(logger) do
         include("$(test).jl")
     end
 
+    DocMeta.setdocmeta!(
+        NFLTables,
+        :DocTestSetup,
+        :(using DataFrames, NFLTables),
+        recursive=true,
+    )
+    doctest(NFLTables; manual=false)
+
 end
+
 end  # module NFLTablesTest
