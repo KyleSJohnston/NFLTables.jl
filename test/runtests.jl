@@ -16,13 +16,13 @@ with_logger(logger) do
         include("$(test).jl")
     end
 
-    DocMeta.setdocmeta!(
-        NFLTables,
-        :DocTestSetup,
-        :(using DataFrames, NFLTables),
-        recursive=true,
-    )
-    doctest(NFLTables; manual=false)
+    # DocMeta.setdocmeta!(
+    #     NFLTables,
+    #     :DocTestSetup,
+    #     :(using DataFrames, NFLTables; using NFLTables: Schedules, NFLScrapR, NFLFastR),
+    #     recursive=true,
+    # )
+    # doctest(NFLTables; manual=false)
 
 end
 
