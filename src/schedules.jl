@@ -83,7 +83,12 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
             awayscore = if isempty(awayscore_elements)
                 missing
             else
-                parse(Float64, awayscore_elements[1].attributes["data-score"])
+                attrib = awayscore_elements[1].attributes
+                if haskey(attrib, "data-score")
+                    parse(Int, attrib["data-score"])
+                else
+                    missing
+                end
             end
 
             home = strip(nodeText(eachmatch(sel"span.nfl-c-matchup-strip__team-abbreviation", home_element)[1]))
@@ -91,7 +96,12 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
             homescore = if isempty(homescore_elements)
                 missing
             else
-                parse(Float64, homescore_elements[1].attributes["data-score"])
+                attrib = homescore_elements[1].attributes
+                if haskey(attrib, "data-score")
+                    parse(Int, attrib["data-score"])
+                else
+                    missing
+                end
             end
 
             push!(df, Dict(
@@ -186,7 +196,7 @@ function download_data(dir::AbstractString; redownload=false)
                 uri = requesturi(season, part, week)
                 content = rawdownload(uri)
                 df = try
-                    extractschedule(content, season, part ,week)
+                    extractschedule(content, season, part, week)
                 catch
                     @error "Unable to extract a schedule" season part week
                     rethrow()
