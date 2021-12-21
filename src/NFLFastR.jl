@@ -7,20 +7,11 @@ module NFLFastR
 
 using  CSV: CSV
 using  DataFrames: DataFrame
-using  Logging
-using  Pkg.Artifacts: artifact_exists, artifact_hash, @artifact_str, bind_artifact!, create_artifact
 using  Downloads: Downloads
-using  ..NFLTables: ARTIFACT_TOML
+using  Logging
+using  Scratch: @get_scratch!
 
 export getdata
-
-function __init__()
-    try
-        download_artifact()
-    catch e
-        @warn "Unable to download artifacts; functionality will be limited until you run NFLFastR.download_artifact"
-    end
-end
 
 """
 seasons with nflfastR data
@@ -42,68 +33,19 @@ function getfilepath(symbol::Symbol)::String
 end
 
 
-"""
-    download_data(dir; redownload=false, reporoot=REPOROOT)
-
-Download nflfastR data to `dir` (overwrite existing if `redownload` is true)
-"""
-function download_data(dir; redownload=false, reporoot=REPOROOT)
-    for season in SEASONS
-        filepath = getfilepath(season)
+function load_data_from_disk(filepath; redownload=false, reporoot=REPOROOT)
+    dirpath = @get_scratch!("nflfastR")
+    localpath = joinpath(dirpath, filepath)
+    if redownload || !isfile(localpath)
         remotepath = joinpath(reporoot, "data", filepath)
-        localpath = joinpath(dir, filepath)
-        if redownload || !isfile(localpath)
-            @info "downloading..." remotepath localpath
-            Downloads.download(remotepath, localpath)
-        end
+        @info "downloading..." remotepath localpath
+        Downloads.download(remotepath, localpath)
     end
-    for symbol in (:player_stats, :player_stats_kicking)
-        filepath = getfilepath(symbol)
-        remotepath = joinpath(reporoot, "data", filepath)
-        localpath = joinpath(dir, filepath)
-        if redownload || !isfile(localpath)
-            @info "downloading..." remotepath localpath
-            Downloads.download(remotepath, localpath)
-        end
-    end
+    return DataFrame(CSV.File(localpath, missingstring="NA"))
 end
 
 """
-    download_artifact(; redownload=false, reporoot=REPOROOT)
-
-Download all nflfastR data and store as an artifact (overwrite existing with `redownload=true`)
-"""
-function download_artifact(; redownload=false, reporoot=REPOROOT)
-    hash = artifact_hash("nflfastR", ARTIFACT_TOML)  # or nothing
-
-    if redownload || isnothing(hash) || !artifact_exists(hash)
-        @info "Creating new nflfastR artifact"
-        hash = create_artifact() do artifact_dir
-            download_data(artifact_dir; reporoot)
-        end
-        @info "Download complete; updating Artifacts.toml"
-        bind_artifact!(ARTIFACT_TOML, "nflfastR", hash, force=true)
-    else
-        @info "nflfastR artifact already downloaded"
-    end
-end
-
-
-function load_data_from_disk(path)
-    artifact_dir = try
-        artifact"nflfastR"
-    catch e
-        if isa(e, LoadError)
-            @error "Artifact data has not been downloaded; run NFLFastR.download_artifact to fix"
-        end
-        rethrow()
-    end
-    filepath = joinpath(artifact_dir, path)
-    return DataFrame(CSV.File(filepath, missingstring="NA"))
-end
-
-"""
-    getplaydata(season::Integer)
+    getdata(season::Integer)
 
 Create a dataframe of play-by-play data for `part` of `season`.
 
