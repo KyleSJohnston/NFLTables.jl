@@ -107,8 +107,8 @@ SB_50::SuperBowl = 2015
     SB_LII     = 2017
     SB_LIII    = 2018
     SB_LIV     = 2019
-    # SB_LV      = 2020
-    # SB_LVI     = 2021
+    SB_LV      = 2020
+    SB_LVI     = 2021
     # SB_LVII    = 2022
     # SB_LVIII   = 2023
 end

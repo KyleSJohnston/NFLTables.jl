@@ -25,6 +25,7 @@ const REPOROOT = "https://github.com/nflverse/nflfastR-data/raw/master/"
 
 
 function getfilepath(season::Integer)::String
+    season in SEASONS || error("Invalid season $season")
     return "play_by_play_$(season).csv.gz"
 end
 function getfilepath(symbol::Symbol)::String
@@ -46,8 +47,9 @@ end
 
 """
     getdata(season::Integer)
+    getdata(label::Symbol)
 
-Create a dataframe of play-by-play data for `part` of `season`.
+Create a dataframe of play-by-play data for `season` or `label` data for all seasons`.
 
 # Examples
 ```jldoctest
@@ -66,10 +68,6 @@ julia> first(df, 5)
 
 ```
 """
-function getdata(season::Integer)
-    season in SEASONS || error("Invalid season $season")
-    return load_data_from_disk(getfilepath(season))
-end
-getdata(symbol::Symbol) = load_data_from_disk(getfilepath(symbol))
+getdata(label; redownload=false, reporoot=REPOROOT) = load_data_from_disk(getfilepath(label); redownload, reporoot)
 
 end  # module NFLFastR
