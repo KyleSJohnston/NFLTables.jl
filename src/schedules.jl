@@ -8,18 +8,11 @@ using  Gumbo: parsehtml
 using  HTTP
 using  JSON
 using  Logging
-using  Pkg.Artifacts
+using  Scratch: @get_scratch!
 using  URIs
 
-using  NFLTables: ARTIFACT_TOML, POST, PRE, REG, SeasonPart
+using  NFLTables: POST, PRE, REG, SeasonPart
 
-function __init__()
-    try
-        download_artifact()
-    catch e
-        @warn "Unable to download artifacts; functionality will be limited until you run Schedules.download_artifact"
-    end
-end
 
 const SEASONS = tuple(2010:2021...)
 
@@ -152,15 +145,13 @@ function requesturi(season::Integer, part::SeasonPart, week::Integer)
     )
     return uri
 end
-requesturi(season::Integer, part::AbstractString, week::Integer) = requesturi(season, parse(SeasonPart, part), week)
 
 
-function rawdownload(uri::AbstractString)
-    r = HTTP.get(uri);
+function rawdownload(uri::URI)
+    r = HTTP.get(string(uri));
     r.status == 200 || error("Unable to get site (status: $(r.status))")
     return String(r.body)
 end
-rawdownload(uri::URI) = rawdownload(string(uri))
 
 
 function seasonweeks(season::Integer)
@@ -181,50 +172,8 @@ function seasonweeks(season::Integer)
 end
 
 function getfilepath(season::Integer)
+    season in SEASONS || error("invalid season $season")
     return "$(season).csv"
-end
-
-function download_data(dir::AbstractString; redownload=false)
-    for season in SEASONS
-        filepath = getfilepath(season)
-        localpath = joinpath(dir, filepath)
-
-        if redownload || !isfile(localpath)
-            @info "Downloading data and writing to $localpath"
-            dataframes = []
-            for (part, week) in seasonweeks(season)
-                uri = requesturi(season, part, week)
-                content = rawdownload(uri)
-                df = try
-                    extractschedule(content, season, part, week)
-                catch
-                    @error "Unable to extract a schedule" season part week
-                    rethrow()
-                end
-                push!(dataframes, df)
-            end
-            df = vcat(dataframes...)
-            sort!(df, [:seasonpart, :week, :date, :home])  # for consistency
-            CSV.write(localpath, df)
-        else
-            @info "$localpath already exists"
-        end
-    end
-end
-
-function download_artifact(; redownload=false)
-    hash = artifact_hash("schedule", ARTIFACT_TOML)  # or nothing
-
-    if redownload || isnothing(hash) || !artifact_exists(hash)
-        @info "Creating new schedule artifact"
-        hash = create_artifact() do artifact_dir
-            download_data(artifact_dir)
-        end
-        @info "Download complete; updating Artifacts.toml"
-        bind_artifact!(ARTIFACT_TOML, "schedule", hash, force=true)
-    else
-        @info "schedule artifact already downloaded"
-    end
 end
 
 
@@ -250,17 +199,29 @@ julia> first(df[:, [:date, :home, :away, :homescore, :awayscore]], 5)
 
 ```
 """
-function schedule(season::Integer)
-    artifact_dir = try
-        artifact"schedule"
-    catch e
-        if isa(e, LoadError)
-            @error "Artifact data has not been downloaded; run Schedules.download_artifact to fix"
+function schedule(season::Integer; redownload=false)
+    dirpath = @get_scratch!("schedules")
+    localpath = joinpath(dirpath, getfilepath(season))
+    return if redownload || !isfile(localpath)
+        @info "Downloading data for $season and writing to $localpath"
+        dataframes = []
+        for (part, week) in seasonweeks(season)
+            content = rawdownload(requesturi(season, part, week))
+            part_df = try
+                extractschedule(content, season, part ,week)
+            catch
+                @error "Unable to extract a schedule" season part week
+                rethrow()
+            end
+            push!(dataframes, part_df)
         end
-        rethrow()
+        df = vcat(dataframes...)
+        sort!(df, [:seasonpart, :week, :date, :home])  # for consistency
+        CSV.write(localpath, df)
+        df
+    else
+        DataFrame(CSV.File(localpath, missingstring="NA"))
     end
-    filepath = joinpath(artifact_dir, getfilepath(season))
-    return DataFrame(CSV.File(filepath, missingstring="NA"))
 end
 
 end  # module Schedules

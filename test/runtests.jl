@@ -6,7 +6,7 @@ using  Logging
 using  NFLTables
 
 # Configure logging
-logger = Logging.ConsoleLogger(stderr, Logging.Debug)
+logger = Logging.ConsoleLogger(stderr, Logging.Warn)
 
 with_logger(logger) do
 
