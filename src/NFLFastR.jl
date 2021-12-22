@@ -55,17 +55,15 @@ Create a dataframe of play-by-play data for `season` or `label` data for all sea
 ```jldoctest
 julia> df = NFLFastR.getdata(2010);
 
-julia> first(df[:, [:home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5)
+julia> show(first(df[:, [:home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5), eltypes=false)
 5×4 DataFrame
  Row │ home_team  away_team  yardline_100  half_seconds_remaining
-     │ String3…   String3…   Int64?        Int64?
 ─────┼────────────────────────────────────────────────────────────
    1 │ LA         ARI             missing                    1800
    2 │ LA         ARI                  30                    1800
    3 │ LA         ARI                  78                    1795
    4 │ LA         ARI                  78                    1764
    5 │ LA         ARI                  73                    1723
-
 ```
 """
 getdata(label; redownload=false, reporoot=REPOROOT) = load_data_from_disk(getfilepath(label); redownload, reporoot)
