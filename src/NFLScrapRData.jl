@@ -60,10 +60,9 @@ Create a dataframe of play-by-play data for `part` of `season`.
 ```jldoctest
 julia> df = NFLScrapR.getplaydata(2019, "POST");
 
-julia> first(df[:, [:game_id, :home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5)
+julia> show(first(df[:, [:game_id, :home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5), eltypes=false)
 5×5 DataFrame
  Row │ game_id     home_team  away_team  yardline_100  half_seconds_remaining
-     │ Int64       String3…   String3…   Int64?        Int64
 ─────┼────────────────────────────────────────────────────────────────────────
    1 │ 2020012600  APR        NPR                  75                    1800
    2 │ 2020012600  APR        NPR                  75                    1776
@@ -85,10 +84,9 @@ Create a dataframe of game data for `part` of `season`.
 ```jldoctest
 julia> df = NFLScrapR.getgamedata(2019, "POST");
 
-julia> first(df[:, [:game_id, :home_team, :away_team, :home_score, :away_score]], 5)
+julia> show(first(df[:, [:game_id, :home_team, :away_team, :home_score, :away_score]], 5), eltypes=false)
 5×5 DataFrame
  Row │ game_id     home_team  away_team  home_score  away_score
-     │ Int64       String3…   String3…   Int64?      Int64?
 ─────┼──────────────────────────────────────────────────────────
    1 │ 2020012600  APR        NPR           missing     missing
    2 │ 2020010400  HOU        BUF                22          19

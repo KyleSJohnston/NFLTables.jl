@@ -186,16 +186,15 @@ Obtain the NFL schedule for `season`
 ```jldoctest
 julia> df = Schedules.schedule(2018);
 
-julia> first(df[:, [:date, :home, :away, :homescore, :awayscore]], 5)
+julia> show(first(df[:, [:date, :home, :away, :homescore, :awayscore]], 5), eltypes=false)
 5×5 DataFrame
- Row │ date        home      away      homescore  awayscore
-     │ Date…       String3…  String3…  Int64      Int64
-─────┼──────────────────────────────────────────────────────
-   1 │ 2018-08-02  BAL       CHI              17         16
-   2 │ 2018-08-09  BAL       LAR              33          7
-   3 │ 2018-08-09  BUF       CAR              23         28
-   4 │ 2018-08-09  CIN       CHI              30         27
-   5 │ 2018-08-09  GB        TEN              31         17
+ Row │ date        home  away  homescore  awayscore
+─────┼──────────────────────────────────────────────
+   1 │ 2018-08-02  BAL   CHI          17         16
+   2 │ 2018-08-09  BAL   LAR          33          7
+   3 │ 2018-08-09  BUF   CAR          23         28
+   4 │ 2018-08-09  CIN   CHI          30         27
+   5 │ 2018-08-09  GB    TEN          31         17
 
 ```
 """
