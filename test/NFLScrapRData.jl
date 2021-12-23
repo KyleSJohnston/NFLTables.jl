@@ -1,6 +1,6 @@
 module TestOfNFLScrapR
 
-using  DataFrames
+using  DataFrames: DataFrame
 using  Test
 
 using  NFLTables: SeasonPart

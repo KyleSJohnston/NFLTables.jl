@@ -52,24 +52,23 @@ function load_data_from_disk(datatype::Symbol, seasonpart::SeasonPart, season::I
 end
 
 """
-    getplaydata(season::Integer, part::SeasonPart)
+    getplaydata(season, part)
 
 Create a dataframe of play-by-play data for `part` of `season`.
 
 # Examples
 ```jldoctest
-julia> df = getplaydata(2018, POST);
+julia> df = NFLScrapR.getplaydata(2019, "POST");
 
-julia> first(df, 5)
-5×256 DataFrames.DataFrame. Omitted printing of 244 columns
-│ Row │ play_id │ game_id    │ home_team │ away_team │ posteam │ posteam_type │ defteam │ side_of_field │ yardline_100 │ game_date  │ quarter_seconds_remaining │ half_seconds_remaining │
-│     │ Int64   │ Int64      │ String    │ String    │ String⍰ │ String⍰      │ String⍰ │ String        │ Int64⍰       │ Dates.Date │ Int64                     │ Int64                  │
-├─────┼─────────┼────────────┼───────────┼───────────┼─────────┼──────────────┼─────────┼───────────────┼──────────────┼────────────┼───────────────────────────┼────────────────────────┤
-│ 1   │ 36      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ HOU           │ 35           │ 2019-01-05 │ 900                       │ 1800                   │
-│ 2   │ 51      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 900                       │ 1800                   │
-│ 3   │ 76      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 860                       │ 1760                   │
-│ 4   │ 98      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 77           │ 2019-01-05 │ 814                       │ 1714                   │
-│ 5   │ 123     │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 65           │ 2019-01-05 │ 774                       │ 1674                   │
+julia> show(first(df[:, [:game_id, :home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5), eltypes=false)
+5×5 DataFrame
+ Row │ game_id     home_team  away_team  yardline_100  half_seconds_remaining
+─────┼────────────────────────────────────────────────────────────────────────
+   1 │ 2020012600  APR        NPR                  75                    1800
+   2 │ 2020012600  APR        NPR                  75                    1776
+   3 │ 2020012600  APR        NPR                  80                    1757
+   4 │ 2020012600  APR        NPR                  71                    1715
+   5 │ 2020012600  APR        NPR                  71                    1709
 
 ```
 """
@@ -77,20 +76,23 @@ getplaydata(season::Integer, part::SeasonPart) = load_data_from_disk(:play_by_pl
 getplaydata(season::Integer, part::String) = getplaydata(season, parse(SeasonPart, part))
 
 """
-    getgamedata(season::Integer, part::SeasonPart)
+    getgamedata(season, part)
 
 Create a dataframe of game data for `part` of `season`.
 
 # Examples
 ```jldoctest
-julia> df = getgamedata(2018, POST);
+julia> df = NFLScrapR.getgamedata(2019, "POST");
 
-julia> df[end, [:game_id, :home_team, :home_score, :away_team, :away_score]]
-DataFrameRow
-│ Row │ game_id    │ home_team │ home_score │ away_team │ away_score │
-│     │ Int64      │ String    │ Int64      │ String    │ Int64      │
-├─────┼────────────┼───────────┼────────────┼───────────┼────────────┤
-│ 12  │ 2019020300 │ LA        │ 3          │ NE        │ 13         │
+julia> show(first(df[:, [:game_id, :home_team, :away_team, :home_score, :away_score]], 5), eltypes=false)
+5×5 DataFrame
+ Row │ game_id     home_team  away_team  home_score  away_score
+─────┼──────────────────────────────────────────────────────────
+   1 │ 2020012600  APR        NPR           missing     missing
+   2 │ 2020010400  HOU        BUF                22          19
+   3 │ 2020010401  NE         TEN                13          20
+   4 │ 2020010500  NO         MIN                20          26
+   5 │ 2020010501  PHI        SEA                 9          17
 
 ```
 """

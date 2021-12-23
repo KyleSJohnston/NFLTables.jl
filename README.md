@@ -1,5 +1,8 @@
 # NFLTables.jl
-[![Build Status](https://travis-ci.com/KyleSJohnston/NFLTables.jl.svg?branch=master)](https://travis-ci.com/KyleSJohnston/NFLTables.jl)
+![](https://github.com/KyleSJohnston/NFLTables.jl/workflows/UnitTests/badge.svg)
+
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://KyleSJohnston.github.io/NFLTables.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://KyleSJohnston.github.io/NFLTables.jl/dev)
 
 Functions to access NFL data. Please create a GitHub issue to request a new
 dataset or report a bug.
@@ -54,16 +57,16 @@ julia> size(gamesdf)
 
 julia> names(gamesdf)
 10-element Array{Symbol,1}:
- :type         
- :game_id      
- :home_team    
- :away_team    
- :week         
- :season       
+ :type
+ :game_id
+ :home_team
+ :away_team
+ :week
+ :season
  :state_of_game
- :game_url     
- :home_score   
- :away_score   
+ :game_url
+ :home_score
+ :away_score
 
 julia> first(gamesdf, 5)
 5×10 DataFrame
@@ -89,16 +92,16 @@ julia> size(pbpdf)
 
 julia> names(pbpdf)[1:10]
 10-element Array{Symbol,1}:
- :play_id      
- :game_id      
- :home_team    
- :away_team    
- :posteam      
+ :play_id
+ :game_id
+ :home_team
+ :away_team
+ :posteam
  :posteam_type
- :defteam      
+ :defteam
  :side_of_field
  :yardline_100
- :game_date    
+ :game_date
 
 julia> pbpdf[1:10, names(pbpdf)[1:5]]
 10×5 DataFrame

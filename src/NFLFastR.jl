@@ -53,19 +53,17 @@ Create a dataframe of play-by-play data for `season` or `label` data for all sea
 
 # Examples
 ```jldoctest
-julia> df = getdata(2018);
+julia> df = NFLFastR.getdata(2010);
 
-julia> first(df, 5)
-5×256 DataFrames.DataFrame. Omitted printing of 244 columns
-│ Row │ play_id │ game_id    │ home_team │ away_team │ posteam │ posteam_type │ defteam │ side_of_field │ yardline_100 │ game_date  │ quarter_seconds_remaining │ half_seconds_remaining │
-│     │ Int64   │ Int64      │ String    │ String    │ String⍰ │ String⍰      │ String⍰ │ String        │ Int64⍰       │ Dates.Date │ Int64                     │ Int64                  │
-├─────┼─────────┼────────────┼───────────┼───────────┼─────────┼──────────────┼─────────┼───────────────┼──────────────┼────────────┼───────────────────────────┼────────────────────────┤
-│ 1   │ 36      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ HOU           │ 35           │ 2019-01-05 │ 900                       │ 1800                   │
-│ 2   │ 51      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 900                       │ 1800                   │
-│ 3   │ 76      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 75           │ 2019-01-05 │ 860                       │ 1760                   │
-│ 4   │ 98      │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 77           │ 2019-01-05 │ 814                       │ 1714                   │
-│ 5   │ 123     │ 2019010500 │ HOU       │ IND       │ IND     │ away         │ HOU     │ IND           │ 65           │ 2019-01-05 │ 774                       │ 1674                   │
-
+julia> show(first(df[:, [:home_team, :away_team, :yardline_100, :half_seconds_remaining]], 5), eltypes=false)
+5×4 DataFrame
+ Row │ home_team  away_team  yardline_100  half_seconds_remaining
+─────┼────────────────────────────────────────────────────────────
+   1 │ LA         ARI             missing                    1800
+   2 │ LA         ARI                  30                    1800
+   3 │ LA         ARI                  78                    1795
+   4 │ LA         ARI                  78                    1764
+   5 │ LA         ARI                  73                    1723
 ```
 """
 getdata(label; redownload=false, reporoot=REPOROOT) = load_data_from_disk(getfilepath(label); redownload, reporoot)

@@ -11,5 +11,7 @@ include("NFLFastR.jl")
 
 # export the API
 export POST, PRE, REG, SeasonPart, SuperBowl
+# export submodules
+export NFLFastR, NFLScrapR, Schedules
 
 end # module

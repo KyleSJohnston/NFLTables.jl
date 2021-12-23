@@ -40,7 +40,7 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
         seasonpart = SeasonPart[],
         week = Int[],
         date = Union{Date,Missing}[],
-        states = Union{String,Missing}[],
+        state = Union{String,Missing}[],
         home = String[],
         away = String[],
         # site = String[],
@@ -76,7 +76,12 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
             awayscore = if isempty(awayscore_elements)
                 missing
             else
-                parse(Float64, awayscore_elements[1].attributes["data-score"])
+                attrib = awayscore_elements[1].attributes
+                if haskey(attrib, "data-score")
+                    parse(Int, attrib["data-score"])
+                else
+                    missing
+                end
             end
 
             home = strip(nodeText(eachmatch(sel"span.nfl-c-matchup-strip__team-abbreviation", home_element)[1]))
@@ -84,7 +89,12 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
             homescore = if isempty(homescore_elements)
                 missing
             else
-                parse(Float64, homescore_elements[1].attributes["data-score"])
+                attrib = homescore_elements[1].attributes
+                if haskey(attrib, "data-score")
+                    parse(Int, attrib["data-score"])
+                else
+                    missing
+                end
             end
 
             push!(df, Dict(
@@ -92,7 +102,7 @@ function extractschedule(content::AbstractString, season::Integer, seasonpart::S
                 :seasonpart => seasonpart,
                 :week => week,
                 :date => date,
-                :states => state,
+                :state => state,
                 :home => home,
                 :away => away,
                 # :site => d.attributes["data-site"],
@@ -168,20 +178,23 @@ end
 
 
 """
-    schedule(season::Integer; redownload::Bool=false)
+    schedule(season::Integer)
 
-Obtain the NFL schedule for `season` (optionally force a `redownload`)
+Obtain the NFL schedule for `season`
 
 # Examples
 ```jldoctest
-julia> df = schedule(2001);
+julia> df = Schedules.schedule(2018);
 
-julia> df[end-1, [:home, :homescore, :away, :awayscore]]
-DataFrameRow
-│ Row │ home   │ homescore │ away   │ awayscore │
-│     │ String │ Int64     │ String │ Int64     │
-├─────┼────────┼───────────┼────────┼───────────┤
-│ 322 │ NE     │ 20        │ STL    │ 17        │
+julia> show(first(df[:, [:date, :home, :away, :homescore, :awayscore]], 5), eltypes=false)
+5×5 DataFrame
+ Row │ date        home  away  homescore  awayscore
+─────┼──────────────────────────────────────────────
+   1 │ 2018-08-02  BAL   CHI          17         16
+   2 │ 2018-08-09  BAL   LAR          33          7
+   3 │ 2018-08-09  BUF   CAR          23         28
+   4 │ 2018-08-09  CIN   CHI          30         27
+   5 │ 2018-08-09  GB    TEN          31         17
 
 ```
 """
