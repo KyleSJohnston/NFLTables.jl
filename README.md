@@ -15,13 +15,10 @@ julia> using NFLTables
 julia> varinfo(NFLTables)
   name              size summary
   –––––––––– ––––––––––– ––––––––––
-  NFLFastR    23.407 KiB Module
-  NFLScrapR   26.434 KiB Module
   NFLTables  273.709 KiB Module
   POST           4 bytes SeasonPart
   PRE            4 bytes SeasonPart
   REG            4 bytes SeasonPart
-  Schedules   35.631 KiB Module
   SeasonPart   128 bytes DataType
   SuperBowl    128 bytes DataType
 
