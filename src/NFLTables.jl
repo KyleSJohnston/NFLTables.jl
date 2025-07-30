@@ -3,15 +3,16 @@ Provides functions to access NFL data in a tabular format.
 """
 module NFLTables
 
+using Logging
+
 # include submodules
 include("enumerations.jl")
-include("schedules.jl")
-include("NFLScrapRData.jl")
-include("NFLFastR.jl")
 
 # export the API
 export POST, PRE, REG, SeasonPart, SuperBowl
-# export submodules
-export NFLFastR, NFLScrapR, Schedules
+
+function __init__()
+    @warn "NFLTables.jl is deprecated. Please use NFLData.jl instead."
+end
 
 end # module

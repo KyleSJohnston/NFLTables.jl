@@ -1,5 +1,6 @@
 module NFLTablesTest
 
+using  DataFrames
 using  Documenter: DocMeta, doctest
 using  Logging
 
@@ -11,7 +12,7 @@ logger = Logging.ConsoleLogger(stderr, Logging.Warn)
 
 with_logger(logger) do
 
-    tests = ["enumerations", "schedules", "NFLScrapRData", "compare"]
+    tests = ["enumerations"]
 
     for test in tests
         include("$(test).jl")
